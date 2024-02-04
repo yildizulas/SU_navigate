@@ -5,6 +5,8 @@ import MapScreen from './screens/MapScreen'; // MapScreen dosyanızın yolu
 
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
+import colors from './styles/colors'; // Renklerin bulunduğu yolu güncelleyin
+
 
 
 const Stack = createNativeStackNavigator();
