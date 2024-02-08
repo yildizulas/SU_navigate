@@ -19,14 +19,25 @@ const MapScreen = () => {
     if (text) {
       const matchedPoi = pois.find(poi => poi.name && poi.name.toLowerCase().includes(text.toLowerCase()));
       if (matchedPoi) {
+        // Arama sonucuna göre haritayı o konuma odakla ve yakınlaştır
         setRegion({
-          ...region,
           latitude: matchedPoi.lat,
           longitude: matchedPoi.lon,
+          latitudeDelta: 0.00005, // Daha yakın bir görünüm için delta değerlerini azalt
+          longitudeDelta: 0.00005,
         });
       }
+    } else {
+      // Eğer arama metni boşsa, başlangıç bölgesine dön
+      setRegion({
+        latitude: 40.89360763590254,
+        longitude: 29.380166148372258,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      });
     }
-  };  
+  };
+  
 
   return (
     <SafeAreaView style={styles.safeArea}>
