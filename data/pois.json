@@ -130,5 +130,17 @@
             "amenity": "cafe",
             "name": "Simit Sarayı"
         }
+    },
+
+    {
+        "type": "poi",
+        "id": "3465585302",
+        "lat": 40.89123, 
+        "lon": 29.38028,
+        "tags": {
+            "amenity": "Kucukev",
+            "brand": "Kucukev",
+            "name": "Kucukev"
+        }
     }
 ]
