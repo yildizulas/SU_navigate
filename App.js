@@ -6,7 +6,7 @@ import MapScreen from './screens/MapScreen'; // MapScreen dosyanızın yolu
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import colors from './styles/colors'; // Renklerin bulunduğu yolu güncelleyinizz.
-
+import Startpage from './screens/Startpage';
 
 
 const Stack = createNativeStackNavigator();
@@ -15,6 +15,7 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
+        <Stack.Screen name = "Mainpage" component={Startpage} options={{title: 'Giris'}} />
         <Stack.Screen name="Map" component={MapScreen} options={{ title: 'Kampüs Haritası' }} />
       </Stack.Navigator>
     </NavigationContainer>
