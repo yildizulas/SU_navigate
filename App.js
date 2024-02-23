@@ -15,8 +15,8 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen name = "Mainpage" component={Startpage} options={{title: 'Giris'}} />
-        <Stack.Screen name="Map" component={MapScreen} options={{ title: 'Kampüs Haritası' }} />
+      
+      <Stack.Screen name="Map" component={MapScreen} options={{ title: 'Kampüs Haritası' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
