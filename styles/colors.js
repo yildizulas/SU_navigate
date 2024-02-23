@@ -27,6 +27,15 @@ const colors = {
     black70: '#585D63', // Pantone Black C 70%
     black33: '#B0B3B5', // Pantone Black C 33%
   },
+  colorsforfun:{
+    
+
+
+
+
+
+
+  }
 };
 
 export default colors;

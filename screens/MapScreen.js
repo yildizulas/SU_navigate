@@ -5,6 +5,10 @@ import ways from '../data/ways.json';
 import pois from '../data/pois.json';
 import colors from '../styles/colors.js';
 
+
+
+
+
 // Özelleştirilmiş harita stilini tanımlayın
 const customMapStyle = [
   {
