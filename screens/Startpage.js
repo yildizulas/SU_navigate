@@ -35,7 +35,7 @@ const EntranceScreen = ({ navigation }) => {
               <Text style={styles.title}>Welcome to SU_Navigate</Text>
               <Button 
                 title="Go to Map"
-                onPress = {handlerForGoogleMap}
+                onPress = {() => navigation.navigate('Map')}
                
               />
             </View>
