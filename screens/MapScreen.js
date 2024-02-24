@@ -57,6 +57,7 @@ const MapScreen = () => {
         <Text style={styles.headerText}>Kampüs Haritası</Text>
       </View>
       <MapView
+      provider={MapView.PROVIDER_GOOGLE}
       style={styles.map}
       region={region}
       customMapStyle={customMapStyle} // Özelleştirilmiş harita stilini kullan
