@@ -15,7 +15,6 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-      
       <Stack.Screen name="Map" component={MapScreen} options={{ title: 'Kampüs Haritası' }} />
       </Stack.Navigator>
     </NavigationContainer>
