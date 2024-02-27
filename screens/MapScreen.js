@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
 
-const MapScreen_Android = () => {
+const MapScreen = () => {
   return (
     
     <MapView
@@ -29,4 +29,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MapScreen_Android;
+export default MapScreen;
