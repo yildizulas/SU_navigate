@@ -90,7 +90,7 @@ const MapScreen = () => {
         style={styles.searchBar}
         value={searchTerm}
         onChangeText={handleSearch}
-        placeholder='Try “FENS” or “Akbank” etc.'
+        placeholder='Try “FENS” or “Akbank” etc - IOS.'
         placeholderTextColor={colors.blackAndWhite.mediumGrey}
       />
     </SafeAreaView>
