@@ -91,8 +91,8 @@ android {
         versionCode 1
         versionName "1.0.0"
 
+        buildConfigField 'String', 'GOOGLE_MAPS_API_KEY', GoogleMapsApiKey
         buildConfigField("boolean", "REACT_NATIVE_UNSTABLE_USE_RUNTIME_SCHEDULER_ALWAYS", (findProperty("reactNative.unstable_useRuntimeSchedulerAlways") ?: true).toString())
-        buildConfigField 'String', 'GOOGLE_MAPS_API_KEY', "\"${GoogleMapsApiKey}\""
     }
     signingConfigs {
         debug {

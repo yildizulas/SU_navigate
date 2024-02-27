@@ -5,10 +5,3 @@
 
     <application android:usesCleartextTraffic="true" tools:targetApi="28" tools:ignore="GoogleAppIndexingWarning" tools:replace="android:usesCleartextTraffic" />
 </manifest>
-<application>
-  <!-- Diğer yapılandırmalar -->
-
-  <meta-data
-    android:name="com.google.android.geo.API_KEY"
-    android:value="AIzaSyBAJ6oNyIj-NLw95eFfGakiVy3mzOjE1_4/>
-</application>
