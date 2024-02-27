@@ -11,7 +11,6 @@ import MapScreen_Android from './screens/MapScreen_Android';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import colors from './styles/colors';
-import Startpage from './screens/Startpage';
 
 const Stack = createNativeStackNavigator();
 

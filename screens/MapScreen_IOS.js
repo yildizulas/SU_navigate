@@ -11,8 +11,8 @@ const MapScreen_IOS = () => {
       region={{
         latitude: 40.89360763590254,
         longitude: 29.380166148372258,
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421,
+        latitudeDelta: 0.006,
+        longitudeDelta: 0.006,
       }}
     />
   );
