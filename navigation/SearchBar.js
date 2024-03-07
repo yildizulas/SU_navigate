@@ -1,44 +1,43 @@
 // SearchBar.js
-import React, { useState } from 'react';
-import { TextInput, StyleSheet } from 'react-native';
-import colors from '../styles/colors.js';
+import React from 'react';
+import { TextInput, StyleSheet, Platform } from 'react-native';
+import SearchBar from '../navigation/SearchBar'
 
-const SearchBar = ({ onSearch }) => {
-  const [searchTerm, setSearchTerm] = useState('');
-
-  const handleSearch = (text) => {
-    setSearchTerm(text);
-    if (onSearch) {
-      onSearch(text);
-    }
+const SearchBar = ({ searchQuery, setSearchQuery }) => {
+  // Define the handleSearch function
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+    // Implement search functionality here
+    // For example, filtering markers or adjusting the map view
   };
 
   return (
     <TextInput
       style={styles.searchBar}
-      value={searchTerm}
-      onChangeText={handleSearch}
       placeholder="Try “FENS” or “Akbank” etc."
-      placeholderTextColor={colors.blackAndWhite.mediumGrey}
+      value={searchQuery}
+      onChangeText={handleSearch} // Use the handleSearch function
     />
   );
 };
 
 const styles = StyleSheet.create({
   searchBar: {
-    position: 'absolute',
-    top: 70,
-    left: 20,
-    right: 20,
-    backgroundColor: colors.blackAndWhite.lightestGrey,
-    borderRadius: 25,
-    fontSize: 15,
-    padding: 15,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.3,
-    shadowRadius: 2,
+    position: 'absolute', // Ensure the search bar is positioned over the map
+    top: Platform.OS === 'ios' ? 40 : 20, // Adjust top position to ensure visibility
+    left: 10,
+    right: 10,
+    height: 40,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    fontSize: 16,
+    paddingHorizontal: 20,
+    elevation: 5, // Android shadow
+    shadowColor: '#000', // iOS shadow
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    zIndex: 10, // Ensure searchBar is on top
   },
 });
 
