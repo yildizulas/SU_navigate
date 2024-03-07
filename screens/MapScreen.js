@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { StyleSheet, View, TouchableOpacity, Text, TextInput, Platform } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, TextInput, Platform } from 'react-native';
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
-import { zoomIn, zoomOut } from '../navigation/ZoomControls'; // ZoomControls.js'den fonksiyonları import edin
+import { zoomIn, zoomOut } from '../navigation/ZoomControls';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 const MapScreen = () => {
   const mapRef = useRef(null);
@@ -16,8 +17,7 @@ const MapScreen = () => {
 
   useEffect(() => {
     if (isMapReady && mapRef.current) {
-      // Harita sınırlarını ayarlama işlevi önceki kod örneğinde yoktu,
-      // bu nedenle burada kullanılmıyor.
+      // Burada harita sınırlarını ayarlayabilirsiniz
     }
   }, [isMapReady, region]);
 
@@ -31,8 +31,7 @@ const MapScreen = () => {
 
   const handleSearch = (query) => {
     setSearchQuery(query);
-    // Arama işlevselliğini burada uygulayabilirsiniz
-    // Örneğin, markerları filtreleme veya harita görünümünü ayarlama
+    // Arama işlevselliği burada uygulanabilir
   };
 
   const handleZoomIn = () => zoomIn(mapRef, region, setRegion);
@@ -56,22 +55,38 @@ const MapScreen = () => {
       />
       <View style={styles.zoomContainer}>
         <TouchableOpacity style={styles.zoomButton} onPress={handleZoomIn}>
-          <Text style={styles.zoomText}>+</Text>
+          <Icon name="plus" style={styles.zoomIcon} />
         </TouchableOpacity>
         <TouchableOpacity style={styles.zoomButton} onPress={handleZoomOut}>
-          <Text style={styles.zoomText}>-</Text>
+          <Icon name="minus" style={styles.zoomIcon} />
         </TouchableOpacity>
       </View>
     </View>
   );
 };
 
-// Stil tanımlamalarını iki kod parçasından birleştirin
 const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: 'flex-end',
     alignItems: 'center',
+  },
+  zoomButton: {
+    backgroundColor: 'white',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 20,
+    elevation: 2,
+    shadowOpacity: 0.25,
+    shadowRadius: 5,
+    shadowOffset: { height: 1, width: 1 },
+    marginVertical: 5,
+    width: 40,
+    height: 40,
+  },
+  zoomIcon: {
+    fontSize: 24,
+    color: 'black',
   },
   map: {
     ...StyleSheet.absoluteFillObject,
@@ -97,21 +112,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 20,
     bottom: 20,
-  },
-  zoomButton: {
-    backgroundColor: 'white',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 20,
-    elevation: 2,
-    shadowOpacity: 0.25,
-    shadowRadius: 5,
-    shadowOffset: { height: 1, width: 1 },
-    marginVertical: 5,
-  },
-  zoomText: {
-    fontSize: 20,
-    color: 'black',
   },
 });
 
