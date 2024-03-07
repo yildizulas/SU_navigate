@@ -4,6 +4,8 @@ import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
 import { zoomIn, zoomOut } from '../navigation/ZoomControls';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
+// erdeeeemmm
+
 const MapScreen = () => {
   const mapRef = useRef(null);
   const [region, setRegion] = useState({
@@ -21,7 +23,7 @@ const MapScreen = () => {
     }
   }, [isMapReady, region]);
 
-  const onMapLayout = () => {//amaaan
+  const onMapLayout = () => {
     setMapReady(true);
   };
 
