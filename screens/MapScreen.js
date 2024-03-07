@@ -16,7 +16,7 @@ const MapScreen = () => {
       }}
     />
   );
-};
+}; //enter
 
 const styles = StyleSheet.create({
   container: {
