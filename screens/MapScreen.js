@@ -21,7 +21,7 @@ const MapScreen = () => {
     }
   }, [isMapReady, region]);
 
-  const onMapLayout = () => {
+  const onMapLayout = () => {//amaaan
     setMapReady(true);
   };
 
