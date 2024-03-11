@@ -4,7 +4,7 @@ import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
 import { zoomIn, zoomOut } from '../navigation/ZoomControls';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-// erdeeeemmm
+// sasdsadsdsd
 
 const MapScreen = () => {
   const mapRef = useRef(null);
