@@ -8,7 +8,7 @@ import MapScreen from './screens/MapScreen';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import colors from './styles/colors';
-
+//ok
 const Stack = createNativeStackNavigator();
 
 export default function App() {
