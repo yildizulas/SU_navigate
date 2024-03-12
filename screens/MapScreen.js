@@ -1,10 +1,10 @@
+// MapScreen.js
 import React, { useState, useRef, useEffect } from 'react';
-import { StyleSheet, View, TouchableOpacity, TextInput, Platform } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Platform } from 'react-native';
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
 import { zoomIn, zoomOut } from '../navigation/ZoomControls';
 import Icon from 'react-native-vector-icons/FontAwesome';
-
-// sasdsadsdsd
+import SearchBar from '../navigation/SearchBar'; 
 
 const MapScreen = () => {
   const mapRef = useRef(null);
@@ -19,7 +19,7 @@ const MapScreen = () => {
 
   useEffect(() => {
     if (isMapReady && mapRef.current) {
-      // Burada harita sınırlarını ayarlayabilirsiniz
+      // Map boundary settings can be adjusted here
     }
   }, [isMapReady, region]);
 
@@ -31,22 +31,9 @@ const MapScreen = () => {
     setRegion(newRegion);
   };
 
-  const handleSearch = (query) => {
-    setSearchQuery(query);
-    // Arama işlevselliği burada uygulanabilir
-  };
-
-  const handleZoomIn = () => zoomIn(mapRef, region, setRegion);
-  const handleZoomOut = () => zoomOut(mapRef, region, setRegion);
-
   return (
     <View style={styles.container}>
-      <TextInput 
-        style={styles.searchBar}
-        placeholder="Try “FENS” or “Akbank” etc."
-        value={searchQuery}
-        onChangeText={handleSearch}
-      />
+      <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
       <MapView
         ref={mapRef}
         provider={PROVIDER_GOOGLE}
@@ -56,10 +43,10 @@ const MapScreen = () => {
         onRegionChangeComplete={onRegionChangeComplete}
       />
       <View style={styles.zoomContainer}>
-        <TouchableOpacity style={styles.zoomButton} onPress={handleZoomIn}>
+        <TouchableOpacity style={styles.zoomButton} onPress={() => zoomIn(mapRef, region, setRegion)}>
           <Icon name="plus" style={styles.zoomIcon} />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.zoomButton} onPress={handleZoomOut}>
+        <TouchableOpacity style={styles.zoomButton} onPress={() => zoomOut(mapRef, region, setRegion)}>
           <Icon name="minus" style={styles.zoomIcon} />
         </TouchableOpacity>
       </View>
@@ -68,6 +55,7 @@ const MapScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  
   container: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: 'flex-end',
@@ -93,28 +81,12 @@ const styles = StyleSheet.create({
   map: {
     ...StyleSheet.absoluteFillObject,
   },
-  searchBar: {
-    position: 'absolute',
-    top: Platform.OS === 'ios' ? 40 : 20,
-    left: 10,
-    right: 10,
-    height: 40,
-    backgroundColor: 'white',
-    borderRadius: 20,
-    fontSize: 16,
-    paddingHorizontal: 20,
-    elevation: 5,
-    shadowColor: 'black',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    zIndex: 10,
-  },
   zoomContainer: {
     position: 'absolute',
     right: 20,
     bottom: 20,
   },
+  
 });
 
 export default MapScreen;

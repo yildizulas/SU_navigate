@@ -1,10 +1,8 @@
 // SearchBar.js
 import React from 'react';
 import { TextInput, StyleSheet, Platform } from 'react-native';
-import SearchBar from '../navigation/SearchBar'
 
 const SearchBar = ({ searchQuery, setSearchQuery }) => {
-  // Define the handleSearch function
   const handleSearch = (query) => {
     setSearchQuery(query);
     // Implement search functionality here
@@ -23,21 +21,21 @@ const SearchBar = ({ searchQuery, setSearchQuery }) => {
 
 const styles = StyleSheet.create({
   searchBar: {
-    position: 'absolute', // Ensure the search bar is positioned over the map
-    top: Platform.OS === 'ios' ? 40 : 20, // Adjust top position to ensure visibility
+    position: 'absolute',
+    top: Platform.OS === 'ios' ? 40 : 20,
     left: 10,
     right: 10,
     height: 40,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'white',
     borderRadius: 20,
     fontSize: 16,
     paddingHorizontal: 20,
-    elevation: 5, // Android shadow
-    shadowColor: '#000', // iOS shadow
+    elevation: 5,
+    shadowColor: 'black',
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.1,
     shadowRadius: 5,
-    zIndex: 10, // Ensure searchBar is on top
+    zIndex: 10,
   },
 });
 
