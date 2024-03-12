@@ -4,7 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 // Genel MapScreen sayfasını import edin
 import MapScreen from './screens/MapScreen';
-
+//Genel denemd
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import colors from './styles/colors';
