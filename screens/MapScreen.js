@@ -1,21 +1,21 @@
-// MapScreen.js
 import React, { useState, useRef, useEffect } from 'react';
-import { StyleSheet, View, TouchableOpacity, Platform } from 'react-native';
-import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
+import { Modal, Text, TouchableOpacity, View, StyleSheet } from 'react-native';
+import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
 import { zoomIn, zoomOut } from '../navigation/ZoomControls';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import SearchBar from '../navigation/SearchBar'; 
+import SearchBar from '../navigation/SearchBar';
 
 const MapScreen = () => {
   const mapRef = useRef(null);
   const [region, setRegion] = useState({
-    latitude: 40.89360763590254,
-    longitude: 29.380166148372258,
+    latitude: 40.890817,
+    longitude: 29.379623,
     latitudeDelta: 0.006,
     longitudeDelta: 0.006,
   });
   const [searchQuery, setSearchQuery] = useState('');
   const [isMapReady, setMapReady] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
     if (isMapReady && mapRef.current) {
@@ -27,8 +27,8 @@ const MapScreen = () => {
     setMapReady(true);
   };
 
-  const onRegionChangeComplete = (newRegion) => {
-    setRegion(newRegion);
+  const toggleModal = () => {
+    setModalVisible(!modalVisible);
   };
 
   return (
@@ -40,8 +40,30 @@ const MapScreen = () => {
         style={styles.map}
         initialRegion={region}
         onLayout={onMapLayout}
-        onRegionChangeComplete={onRegionChangeComplete}
-      />
+      >
+        <Marker
+          coordinate={{ latitude: 40.890817, longitude: 29.379623 }}
+          onPress={toggleModal}
+        >
+          <Icon name="home" size={30} color="#0078D7" />
+        </Marker>
+      </MapView>
+      <Modal
+        animationType="slide"
+        transparent={false}
+        visible={modalVisible}
+        onRequestClose={toggleModal}
+      >
+        <View style={styles.modalView}>
+          <Text style={styles.modalText}>FENS Entrance Details</Text>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={toggleModal}
+          >
+            <Text style={styles.textStyle}>Hide Modal</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
       <View style={styles.zoomContainer}>
         <TouchableOpacity style={styles.zoomButton} onPress={() => zoomIn(mapRef, region, setRegion)}>
           <Icon name="plus" style={styles.zoomIcon} />
@@ -55,11 +77,29 @@ const MapScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  
   container: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: 'flex-end',
     alignItems: 'center',
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: "center"
   },
   zoomButton: {
     backgroundColor: 'white',
@@ -86,7 +126,6 @@ const styles = StyleSheet.create({
     right: 20,
     bottom: 20,
   },
-  
 });
 
 export default MapScreen;
