@@ -1,4 +1,4 @@
-const markers = [
+const markers = [ //erdemmmmm
     {
       id: 'fens_floor1_2',
       coordinate: { latitude: 40.890817, longitude: 29.379623 },

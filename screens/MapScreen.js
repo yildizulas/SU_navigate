@@ -17,7 +17,6 @@ const MapScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isMapReady, setMapReady] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedMarkerId, setSelectedMarkerId] = useState('');
   const [zoomLevel, setZoomLevel] = useState(0);
 
   useEffect(() => {
@@ -38,7 +37,7 @@ const MapScreen = () => {
   };
 
   const handleMarkerPress = (marker) => {
-    setSelectedMarkerId(marker.id);
+    console.log("Marker pressed:", marker.id); // Or whatever you want to do with it
     setModalVisible(true);
   };
 
@@ -53,7 +52,7 @@ const MapScreen = () => {
         onRegionChangeComplete={onRegionChangeComplete}
         onLayout={onMapLayout}
       >
-        {markers.filter(marker => zoomLevel > 17.5).map((marker) => (
+        {markers.filter(marker => zoomLevel > 17.5).map((marker, index) => (
           <Marker
             key={marker.id}
             coordinate={marker.coordinate}
@@ -70,7 +69,7 @@ const MapScreen = () => {
         onRequestClose={() => setModalVisible(false)}
       >
         <View style={styles.modalView}>
-          <Text style={styles.modalText}>Entrance Details for {selectedMarkerId}</Text>
+          <Text style={styles.modalText}>Entrance Details</Text>
           <TouchableOpacity
             style={styles.button}
             onPress={() => setModalVisible(false)}
