@@ -4,7 +4,7 @@ import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
 import { zoomIn, zoomOut } from '../navigation/ZoomControls';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import SearchBar from '../navigation/SearchBar';
-import markers from '../navigation/markers';  // İşaretçilerin tanımlandığı dosya
+import markers from '../navigation/markers';
 
 const MapScreen = () => {
   const mapRef = useRef(null);
@@ -17,6 +17,8 @@ const MapScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isMapReady, setMapReady] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [selectedMarkerId, setSelectedMarkerId] = useState('');
+  const [zoomLevel, setZoomLevel] = useState(0);
 
   useEffect(() => {
     if (isMapReady && mapRef.current) {
@@ -28,8 +30,16 @@ const MapScreen = () => {
     setMapReady(true);
   };
 
-  const toggleModal = () => {
-    setModalVisible(!modalVisible);
+  const onRegionChangeComplete = (newRegion) => {
+    setRegion(newRegion);
+    const latDelta = newRegion.latitudeDelta;
+    const newZoomLevel = Math.round(Math.log(360 / latDelta) / Math.LN2);
+    setZoomLevel(newZoomLevel);
+  };
+
+  const handleMarkerPress = (marker) => {
+    setSelectedMarkerId(marker.id);
+    setModalVisible(true);
   };
 
   return (
@@ -40,13 +50,14 @@ const MapScreen = () => {
         provider={PROVIDER_GOOGLE}
         style={styles.map}
         initialRegion={region}
+        onRegionChangeComplete={onRegionChangeComplete}
         onLayout={onMapLayout}
       >
-        {markers.map((marker, index) => (
+        {markers.filter(marker => zoomLevel > 17.5).map((marker) => (
           <Marker
-            key={index}
+            key={marker.id}
             coordinate={marker.coordinate}
-            onPress={toggleModal}
+            onPress={() => handleMarkerPress(marker)}
           >
             <Icon name={marker.icon} size={30} color={marker.color} />
           </Marker>
@@ -56,13 +67,13 @@ const MapScreen = () => {
         animationType="slide"
         transparent={false}
         visible={modalVisible}
-        onRequestClose={toggleModal}
+        onRequestClose={() => setModalVisible(false)}
       >
         <View style={styles.modalView}>
-          <Text style={styles.modalText}>FENS Entrance Details</Text>
+          <Text style={styles.modalText}>Entrance Details for {selectedMarkerId}</Text>
           <TouchableOpacity
             style={styles.button}
-            onPress={toggleModal}
+            onPress={() => setModalVisible(false)}
           >
             <Text style={styles.textStyle}>Hide Modal</Text>
           </TouchableOpacity>
@@ -103,6 +114,17 @@ const styles = StyleSheet.create({
   },
   modalText: {
     marginBottom: 15,
+    textAlign: "center"
+  },
+  button: {
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2,
+    backgroundColor: "#2196F3"
+  },
+  textStyle: {
+    color: "white",
+    fontWeight: "bold",
     textAlign: "center"
   },
   zoomButton: {
