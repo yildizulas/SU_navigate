@@ -5,6 +5,8 @@ import { zoomIn, zoomOut } from '../navigation/ZoomControls';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import SearchBar from '../navigation/SearchBar';
 import markers from '../navigation/markers';
+import Config from '../navigation/config'; 
+
 
 const MapScreen = () => {
   const mapRef = useRef(null);
