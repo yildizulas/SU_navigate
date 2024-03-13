@@ -4,6 +4,7 @@ import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
 import { zoomIn, zoomOut } from '../navigation/ZoomControls';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import SearchBar from '../navigation/SearchBar';
+import markers from '../navigation/markers';  // İşaretçilerin tanımlandığı dosya
 
 const MapScreen = () => {
   const mapRef = useRef(null);
@@ -41,12 +42,15 @@ const MapScreen = () => {
         initialRegion={region}
         onLayout={onMapLayout}
       >
-        <Marker
-          coordinate={{ latitude: 40.890817, longitude: 29.379623 }}
-          onPress={toggleModal}
-        >
-          <Icon name="home" size={30} color="#0078D7" />
-        </Marker>
+        {markers.map((marker, index) => (
+          <Marker
+            key={index}
+            coordinate={marker.coordinate}
+            onPress={toggleModal}
+          >
+            <Icon name={marker.icon} size={30} color={marker.color} />
+          </Marker>
+        ))}
       </MapView>
       <Modal
         animationType="slide"
