@@ -1,13 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Modal, Text, TouchableOpacity, View, StyleSheet } from 'react-native';
+import { Modal, Text, TouchableOpacity, View, StyleSheet, Image } from 'react-native';
 import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
-import { zoomIn, zoomOut } from '../navigation/ZoomControls';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import SearchBar from '../navigation/SearchBar';
 import markers from '../navigation/markers';
-import Config from '../navigation/config'; 
+import { zoomIn, zoomOut } from '../navigation/ZoomControls'; // Make sure these functions are correctly implemented
+import * as Location from 'expo-location'; // Import Location from expo-location
 
-//deneme2
 const MapScreen = () => {
   const mapRef = useRef(null);
   const [region, setRegion] = useState({
@@ -20,12 +19,25 @@ const MapScreen = () => {
   const [isMapReady, setMapReady] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(0);
+  const [currentLocation, setCurrentLocation] = useState(null); // State for storing current location
 
   useEffect(() => {
-    if (isMapReady && mapRef.current) {
-      // Map boundary settings can be adjusted here
-    }
-  }, [isMapReady, region]);
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        console.log('Permission to access location was denied');
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.High
+      });
+      
+      setCurrentLocation(location.coords);
+      console.log(location);
+      // Optionally update the region state to center the map on the current location
+    })();
+  }, []);
 
   const onMapLayout = () => {
     setMapReady(true);
@@ -63,6 +75,14 @@ const MapScreen = () => {
             <Icon name={marker.icon} size={30} color={marker.color} />
           </Marker>
         ))}
+        {currentLocation && (
+          <Marker
+            coordinate={{ latitude: currentLocation.latitude, longitude: currentLocation.longitude }}
+            title="My Location"
+          >
+            <Image source={require('/Users/gultekin/Desktop/SUnav/SU_navigate/assets/HumanIcon.png')} style={{ width: 50, height: 50 }} />
+          </Marker>
+        )}
       </MapView>
       <Modal
         animationType="slide"
@@ -82,10 +102,10 @@ const MapScreen = () => {
       </Modal>
       <View style={styles.zoomContainer}>
         <TouchableOpacity style={styles.zoomButton} onPress={() => zoomIn(mapRef, region, setRegion)}>
-          <Icon name="plus" style={styles.zoomIcon} />
+          <Icon name="plus" size={24} color="black" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.zoomButton} onPress={() => zoomOut(mapRef, region, setRegion)}>
-          <Icon name="minus" style={styles.zoomIcon} />
+          <Icon name="minus" size={24} color="black" />
         </TouchableOpacity>
       </View>
     </View>
@@ -140,10 +160,6 @@ const styles = StyleSheet.create({
     marginVertical: 5,
     width: 40,
     height: 40,
-  },
-  zoomIcon: {
-    fontSize: 24,
-    color: 'black',
   },
   map: {
     ...StyleSheet.absoluteFillObject,
