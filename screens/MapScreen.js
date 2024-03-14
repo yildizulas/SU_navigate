@@ -7,7 +7,7 @@ import SearchBar from '../navigation/SearchBar';
 import markers from '../navigation/markers';
 import Config from '../navigation/config'; 
 
-//deneme
+//deneme2
 const MapScreen = () => {
   const mapRef = useRef(null);
   const [region, setRegion] = useState({
