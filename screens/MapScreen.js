@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Modal, Text, TouchableOpacity, View, StyleSheet, Image } from 'react-native';
+import { Modal, Text, TouchableOpacity, View, StyleSheet } from 'react-native';
 import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import SearchBar from '../navigation/SearchBar';
 import markers from '../navigation/markers';
-import { zoomIn, zoomOut } from '../navigation/ZoomControls'; // Make sure these functions are correctly implemented
-import * as Location from 'expo-location'; // Import Location from expo-location
+import { zoomIn, zoomOut } from '../navigation/ZoomControls';
+import * as Location from 'expo-location';
 
 const MapScreen = () => {
   const mapRef = useRef(null);
@@ -19,7 +19,6 @@ const MapScreen = () => {
   const [isMapReady, setMapReady] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(0);
-  const [currentLocation, setCurrentLocation] = useState(null); // State for storing current location
 
   useEffect(() => {
     (async () => {
@@ -32,10 +31,12 @@ const MapScreen = () => {
       let location = await Location.getCurrentPositionAsync({
         accuracy: Location.Accuracy.High
       });
-      
-      setCurrentLocation(location.coords);
-      console.log(location);
-      // Optionally update the region state to center the map on the current location
+
+      setRegion({
+        ...region,
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      });
     })();
   }, []);
 
@@ -51,8 +52,18 @@ const MapScreen = () => {
   };
 
   const handleMarkerPress = (marker) => {
-    console.log("Marker pressed:", marker.id); // Or whatever you want to do with it
+    console.log("Marker pressed:", marker.id);
     setModalVisible(true);
+  };
+
+  const goToCurrentLocation = () => {
+    mapRef.current.animateToRegion({
+      ...region,
+      latitude: region.latitude,
+      longitude: region.longitude,
+      latitudeDelta: 0.006,
+      longitudeDelta: 0.006,
+    }, 1000);
   };
 
   return (
@@ -65,6 +76,7 @@ const MapScreen = () => {
         initialRegion={region}
         onRegionChangeComplete={onRegionChangeComplete}
         onLayout={onMapLayout}
+        showsUserLocation={true}
       >
         {markers.filter(marker => zoomLevel > 17.5).map((marker, index) => (
           <Marker
@@ -75,14 +87,6 @@ const MapScreen = () => {
             <Icon name={marker.icon} size={30} color={marker.color} />
           </Marker>
         ))}
-        {currentLocation && (
-          <Marker
-            coordinate={{ latitude: currentLocation.latitude, longitude: currentLocation.longitude }}
-            title="My Location"
-          >
-            <Image source={require('/Users/gultekin/Desktop/SUnav/SU_navigate/assets/HumanIcon.png')} style={{ width: 50, height: 50 }} />
-          </Marker>
-        )}
       </MapView>
       <Modal
         animationType="slide"
@@ -108,6 +112,9 @@ const MapScreen = () => {
           <Icon name="minus" size={24} color="black" />
         </TouchableOpacity>
       </View>
+      <TouchableOpacity style={styles.myLocationButton} onPress={goToCurrentLocation}>
+        <Icon name="crosshairs" size={24} color="black" />
+      </TouchableOpacity>
     </View>
   );
 };
@@ -168,6 +175,18 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 20,
     bottom: 20,
+  },
+  myLocationButton: {
+    position: 'absolute',
+    left: 20,
+    bottom: 20,
+    backgroundColor: 'white',
+    padding: 10,
+    borderRadius: 20,
+    elevation: 2,
+    shadowOpacity: 0.25,
+    shadowRadius: 5,
+    shadowOffset: { height: 1, width: 1 },
   },
 });
 
