@@ -22,6 +22,7 @@ const MapScreen = () => {
 
   useEffect(() => {
     (async () => {
+      console.log("Attempting to fetch current location...");
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
         console.log('Permission to access location was denied');
@@ -56,25 +57,30 @@ const MapScreen = () => {
     setModalVisible(true);
   };
 
+  
   const goToCurrentLocation = async () => {
+    console.log("Attempting to fetch current location...");
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== 'granted') {
       console.log('Permission to access location was denied');
       return;
     }
 
-    let location = await Location.getCurrentPositionAsync({
-      accuracy: Location.Accuracy.High
-    });
+    try {
+      let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
+      console.log("Current location fetched:", location);
 
-    const newRegion = {
-      latitude: location.coords.latitude,
-      longitude: location.coords.longitude,
-      latitudeDelta: 0.006,
-      longitudeDelta: 0.006,
-    };
+      const newRegion = {
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+        latitudeDelta: 0.006,
+        longitudeDelta: 0.006,
+      };
 
-    mapRef.current.animateToRegion(newRegion, 1000);
+      mapRef.current.animateToRegion(newRegion, 1000);
+    } catch (error) {
+      console.error("Error fetching current location:", error);
+    }
   };
 
   return (
