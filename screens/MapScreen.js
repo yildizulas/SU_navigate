@@ -56,14 +56,25 @@ const MapScreen = () => {
     setModalVisible(true);
   };
 
-  const goToCurrentLocation = () => {
-    mapRef.current.animateToRegion({
-      ...region,
-      latitude: region.latitude,
-      longitude: region.longitude,
+  const goToCurrentLocation = async () => {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+      console.log('Permission to access location was denied');
+      return;
+    }
+
+    let location = await Location.getCurrentPositionAsync({
+      accuracy: Location.Accuracy.High
+    });
+
+    const newRegion = {
+      latitude: location.coords.latitude,
+      longitude: location.coords.longitude,
       latitudeDelta: 0.006,
       longitudeDelta: 0.006,
-    }, 1000);
+    };
+
+    mapRef.current.animateToRegion(newRegion, 1000);
   };
 
   return (
