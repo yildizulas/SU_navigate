@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Modal, Text, TouchableOpacity, View, StyleSheet } from 'react-native';
-import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
+import MapView, { PROVIDER_GOOGLE, Marker,Polygon } from 'react-native-maps';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import SearchBar from '../navigation/SearchBar';
 import markers from '../navigation/markers';
 import { zoomIn, zoomOut } from '../navigation/ZoomControls';
 import * as Location from 'expo-location';
+import buildingBoundaries from '../navigation/BuildingBoundaries';
 
 const MapScreen = () => {
   const mapRef = useRef(null);
@@ -95,7 +96,7 @@ const MapScreen = () => {
         onLayout={onMapLayout}
         showsUserLocation={true}
       >
-        {markers.filter(marker => zoomLevel > 17.5).map((marker, index) => (
+        {markers.filter(marker => zoomLevel > 17.5).map((marker) => (
           <Marker
             key={marker.id}
             coordinate={marker.coordinate}
@@ -103,6 +104,15 @@ const MapScreen = () => {
           >
             <Icon name={marker.icon} size={30} color={marker.color} />
           </Marker>
+        ))}
+        {buildingBoundaries.map((building) => (
+          <Polygon
+            key={building.id}
+            coordinates={building.coordinates}
+            strokeColor="green" // boundary line color
+            fillColor="white" // fill color
+            strokeWidth={2}
+          />
         ))}
       </MapView>
       <Modal
