@@ -1,6 +1,7 @@
-const markers = [ //erdemmmmm
+const markers = [ 
     {
       id: 'fens_floor1_2',
+      name: 'fens',
       coordinate: { latitude: 40.890817, longitude: 29.379623 },
       icon: 'home',
       color: '#0078D7',
@@ -8,6 +9,7 @@ const markers = [ //erdemmmmm
     },
     {
       id: 'fens_floor1_1',
+      name: 'fens2',
       coordinate: { latitude: 40.89055, longitude: 29.37971 },
       icon: 'home',
       color: '#0078D7',

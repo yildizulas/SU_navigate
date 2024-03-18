@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Modal, Text, TouchableOpacity, View, StyleSheet } from 'react-native';
-import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
+import { Modal, Text, TouchableOpacity, View, StyleSheet, Alert } from 'react-native';
+import MapView, { PROVIDER_GOOGLE, Marker, Polyline } from 'react-native-maps';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import SearchBar from '../navigation/SearchBar';
 import markers from '../navigation/markers';
 import { zoomIn, zoomOut } from '../navigation/ZoomControls';
 import * as Location from 'expo-location';
+import polyline from '@mapbox/polyline';
 
 const MapScreen = () => {
   const mapRef = useRef(null);
@@ -16,23 +17,19 @@ const MapScreen = () => {
     longitudeDelta: 0.006,
   });
   const [searchQuery, setSearchQuery] = useState('');
-  const [isMapReady, setMapReady] = useState(false);
+  const [routeCoordinates, setRouteCoordinates] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(0);
 
   useEffect(() => {
     (async () => {
-      console.log("Attempting to fetch current location...");
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
-        console.log('Permission to access location was denied');
+        Alert.alert('Permission to access location was denied');
         return;
       }
 
-      let location = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.High
-      });
-
+      let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
       setRegion({
         ...region,
         latitude: location.coords.latitude,
@@ -41,69 +38,79 @@ const MapScreen = () => {
     })();
   }, []);
 
-  const onMapLayout = () => {
-    setMapReady(true);
-  };
+  const handleSearch = async (query) => {
+    const lowercasedQuery = query.toLowerCase();
+    const marker = markers.find(marker => marker.name.toLowerCase() === lowercasedQuery);
 
-  const onRegionChangeComplete = (newRegion) => {
-    setRegion(newRegion);
-    const latDelta = newRegion.latitudeDelta;
-    const newZoomLevel = Math.round(Math.log(360 / latDelta) / Math.LN2);
-    setZoomLevel(newZoomLevel);
-  };
-
-  const handleMarkerPress = (marker) => {
-    console.log("Marker pressed:", marker.id);
-    setModalVisible(true);
-  };
-
-  
-  const goToCurrentLocation = async () => {
-    console.log("Attempting to fetch current location...");
-    let { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== 'granted') {
-      console.log('Permission to access location was denied');
-      return;
+    if (marker && region) {
+      await fetchRouteData({ latitude: region.latitude, longitude: region.longitude }, marker.coordinate);
+    } else {
+      console.log('No matching marker found');
+      setRouteCoordinates([]); // Clear existing route if no marker is found
     }
+  };
+
+  const fetchRouteData = async (startCoord, endCoord) => {
+    const apiKey = 'AIzaSyBAJ6oNyIj-NLw95eFfGakiVy3mzOjE1_4'; // Replace this with your actual Google API key
+    const mode = 'walking'; // You can change this to 'walking', 'bicycling' or 'transit'
+    const origin = `${startCoord.latitude},${startCoord.longitude}`;
+    const destination = `${endCoord.latitude},${endCoord.longitude}`;
+    const directionsUrl = `https://maps.googleapis.com/maps/api/directions/json?origin=${origin}&destination=${destination}&mode=${mode}&key=${apiKey}`;
 
     try {
-      let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
-      console.log("Current location fetched:", location);
-
-      const newRegion = {
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-        latitudeDelta: 0.006,
-        longitudeDelta: 0.006,
-      };
-
-      mapRef.current.animateToRegion(newRegion, 1000);
+      const response = await fetch(directionsUrl);
+      const json = await response.json();
+      console.log(json);
+      if (json.routes.length) {
+        const points = json.routes[0].overview_polyline.points;
+        const steps = decodePolyline(points); // Function to decode polyline
+        setRouteCoordinates(steps);
+      } else {
+        setRouteCoordinates([]);
+        console.log('No routes found.');
+      }
     } catch (error) {
-      console.error("Error fetching current location:", error);
+      console.error('Error fetching route data:', error);
+      setRouteCoordinates([]);
     }
+  };
+
+  const decodePolyline = (encoded) => {
+    return polyline.decode(encoded).map(array => {
+      return { latitude: array[0], longitude: array[1] };
+    });
   };
 
   return (
     <View style={styles.container}>
-      <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+      <SearchBar 
+        searchQuery={searchQuery} 
+        setSearchQuery={setSearchQuery} 
+        onSearch={handleSearch} 
+      />
       <MapView
         ref={mapRef}
         provider={PROVIDER_GOOGLE}
         style={styles.map}
         initialRegion={region}
-        onRegionChangeComplete={onRegionChangeComplete}
-        onLayout={onMapLayout}
         showsUserLocation={true}
       >
-        {markers.filter(marker => zoomLevel > 17.5).map((marker, index) => (
+        {markers.map((marker) => (
           <Marker
             key={marker.id}
             coordinate={marker.coordinate}
-            onPress={() => handleMarkerPress(marker)}
+            onPress={() => setModalVisible(true)}
           >
             <Icon name={marker.icon} size={30} color={marker.color} />
           </Marker>
         ))}
+        {routeCoordinates.length > 0 && (
+          <Polyline
+            coordinates={routeCoordinates}
+            strokeWidth={2}
+            strokeColor="red"
+          />
+        )}
       </MapView>
       <Modal
         animationType="slide"
@@ -129,9 +136,6 @@ const MapScreen = () => {
           <Icon name="minus" size={24} color="black" />
         </TouchableOpacity>
       </View>
-      <TouchableOpacity style={styles.myLocationButton} onPress={goToCurrentLocation}>
-        <Icon name="crosshairs" size={24} color="black" />
-      </TouchableOpacity>
     </View>
   );
 };
@@ -192,18 +196,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 20,
     bottom: 20,
-  },
-  myLocationButton: {
-    position: 'absolute',
-    left: 20,
-    bottom: 20,
-    backgroundColor: 'white',
-    padding: 10,
-    borderRadius: 20,
-    elevation: 2,
-    shadowOpacity: 0.25,
-    shadowRadius: 5,
-    shadowOffset: { height: 1, width: 1 },
   },
 });
 

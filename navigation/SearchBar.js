@@ -2,11 +2,16 @@
 import React from 'react';
 import { TextInput, StyleSheet, Platform } from 'react-native';
 
-const SearchBar = ({ searchQuery, setSearchQuery }) => {
-  const handleSearch = (query) => {
+const SearchBar = ({ searchQuery, setSearchQuery, onSearch }) => {
+
+  // This function is now dedicated to updating the search query state.
+  const handleChangeText = (query) => {
     setSearchQuery(query);
-    // Implement search functionality here
-    // For example, filtering markers or adjusting the map view
+  };
+
+  // This will be triggered when the user submits their search query.
+  const handleSubmitEditing = () => {
+    onSearch(searchQuery);
   };
 
   return (
@@ -14,7 +19,8 @@ const SearchBar = ({ searchQuery, setSearchQuery }) => {
       style={styles.searchBar}
       placeholder="Try “FENS” or “Akbank” etc."
       value={searchQuery}
-      onChangeText={handleSearch} // Use the handleSearch function
+      onChangeText={handleChangeText} // Only update searchQuery on text change
+      onSubmitEditing={handleSubmitEditing} // Trigger search on submit
     />
   );
 };
@@ -22,9 +28,9 @@ const SearchBar = ({ searchQuery, setSearchQuery }) => {
 const styles = StyleSheet.create({
   searchBar: {
     position: 'absolute',
-    top: Platform.OS === 'ios' ? 40 : 20,
+    top: Platform.OS === 'ios' ? 40 : 12,
     left: 10,
-    right: 10,
+    right: 55, // Adjust based on your layout
     height: 40,
     backgroundColor: 'white',
     borderRadius: 20,
