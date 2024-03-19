@@ -41,6 +41,7 @@ const MapScreen = () => {
   const handleSearch = async (query) => {
     const lowercasedQuery = query.toLowerCase();
     const marker = markers.find(marker => marker.name.toLowerCase() === lowercasedQuery);
+    //console.log(marker);
 
     if (marker && region) {
       await fetchRouteData({ latitude: region.latitude, longitude: region.longitude }, marker.coordinate);
@@ -60,11 +61,13 @@ const MapScreen = () => {
     try {
       const response = await fetch(directionsUrl);
       const json = await response.json();
-      console.log(json);
+      //console.log(json);
+      //console.log("\n");
       if (json.routes.length) {
         const points = json.routes[0].overview_polyline.points;
         const steps = decodePolyline(points); // Function to decode polyline
         setRouteCoordinates(steps);
+        console.log("route destination completed.");
       } else {
         setRouteCoordinates([]);
         console.log('No routes found.');
@@ -108,7 +111,7 @@ const MapScreen = () => {
           <Polyline
             coordinates={routeCoordinates}
             strokeWidth={2}
-            strokeColor="red"
+            strokeColor="purple"
           />
         )}
       </MapView>
