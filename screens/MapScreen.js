@@ -21,9 +21,12 @@ const MapScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(0);
 
+  const [visibleMarkers, setVisibleMarkers] = useState([]);
+
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
+      setVisibleMarkers([]);
       if (status !== 'granted') {
         Alert.alert('Permission to access location was denied');
         return;
@@ -40,14 +43,56 @@ const MapScreen = () => {
 
   const handleSearch = async (query) => {
     const lowercasedQuery = query.toLowerCase();
-    const marker = markers.find(marker => marker.name.toLowerCase() === lowercasedQuery);
-    //console.log(marker);
-
-    if (marker && region) {
-      await fetchRouteData({ latitude: region.latitude, longitude: region.longitude }, marker.coordinate);
+    let closestMarker = null;
+    let minDistance = Infinity;
+  
+    // Kullanıcının mevcut konumunu al
+    const { coords } = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
+    const userLocation = { latitude: coords.latitude, longitude: coords.longitude };
+  
+    // Kategoriler arasında arama yap
+    Object.keys(markers).forEach(category => {
+      if (category.toLowerCase() === lowercasedQuery) {
+        markers[category].forEach(marker => {
+          const distance = getDistance(userLocation, marker.coordinate);
+          if (distance < minDistance) {
+            closestMarker = marker;
+            minDistance = distance;
+          }
+        });
+      }
+    });
+  
+    if (closestMarker && region) {
+      await fetchRouteData(userLocation, closestMarker.coordinate);
     } else {
-      console.log('No matching marker found');
-      setRouteCoordinates([]); // Clear existing route if no marker is found
+      console.log('No matching category or marker found');
+      setRouteCoordinates([]);
+    }
+  };
+  
+  // İki konum arasındaki mesafeyi hesaplayan fonksiyon
+  const getDistance = (location1, location2) => {
+    const rad = (x) => x * Math.PI / 180;
+    const R = 6378137; // Earth’s mean radius in meter
+    const dLat = rad(location2.latitude - location1.latitude);
+    const dLong = rad(location2.longitude - location1.longitude);
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.cos(rad(location1.latitude)) * Math.cos(rad(location2.latitude)) *
+              Math.sin(dLong / 2) * Math.sin(dLong / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const d = R * c;
+    return d; // returns the distance in meter
+  };
+
+  const onRegionChangeComplete = (newRegion) => {
+    setRegion(newRegion);
+
+    // Belirli bir zoom seviyesinden sonra marker'ları göster
+    if (newRegion.latitudeDelta < 0.002 && newRegion.longitudeDelta < 0.004) {
+      setVisibleMarkers(markers);
+    } else {
+      setVisibleMarkers([]);
     }
   };
 
@@ -92,20 +137,23 @@ const MapScreen = () => {
         onSearch={handleSearch} 
       />
       <MapView
-        ref={mapRef}
-        provider={PROVIDER_GOOGLE}
-        style={styles.map}
-        initialRegion={region}
-        showsUserLocation={true}
-      >
-        {markers.map((marker) => (
-          <Marker
-            key={marker.id}
-            coordinate={marker.coordinate}
-            onPress={() => setModalVisible(true)}
-          >
-            <Icon name={marker.icon} size={30} color={marker.color} />
-          </Marker>
+          ref={mapRef}
+          provider={PROVIDER_GOOGLE}
+          style={styles.map}
+          initialRegion={region}
+          showsUserLocation={true}
+          onRegionChangeComplete={onRegionChangeComplete}
+        >
+        {Object.keys(visibleMarkers).map(category => (
+          visibleMarkers[category].map(marker => (
+            <Marker
+              key={marker.id}
+              coordinate={marker.coordinate}
+              onPress={() => setModalVisible(true)}
+            >
+              <Icon name={marker.icon} size={30} color={marker.color} />
+            </Marker>
+          ))
         ))}
         {routeCoordinates.length > 0 && (
           <Polyline
