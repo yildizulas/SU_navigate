@@ -1,42 +1,29 @@
-// FloorPlanScreen.js
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import Pdf from 'react-native-pdf';
+import { View, Image, StyleSheet } from 'react-native';
 
-// Önceden tanımlanmış PDF yollarınızın objesi
-const pdfFiles = {
-  'MÜHENDİSLİK 1. KAT': require('../floors/FENS/MÜHENDİSLİK 1. KAT.pdf'),
-  // 'Diğer katların dosya yollarını da buraya ekleyebilirsiniz'
-};
-
-const FloorPlanScreen = ({ route }) => {
-  const { floor } = route.params; // Parametre olarak 'floor' aldık
-
-  // 'floor' parametresine göre doğru PDF dosyasını seçiyoruz
-  const source = pdfFiles[floor];
-
+const FloorPlanScreen = () => {
   return (
     <View style={styles.container}>
-      <Pdf
-        source={source}
-        style={styles.pdf}
-      />
+      <Image 
+        source={require('../assets/floors/FENS/fens_floor1_1.jpg')} 
+        style={styles.floorPlanImage} 
+        />
+      {/* Eğer yol çizdirmek isterseniz burada ekstra işlemler yapabilirsiniz. */}
     </View>
   );
 };
 
-// Stil tanımlamalarınız
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
   },
-  pdf: {
-    flex: 1,
-    width: '100%',
-    height: '100%'
-  }
+  floorPlanImage: {
+    width: '100%', // Görüntüyü ekranın genişliğine göre ayarlayın
+    height: '100%', // Görüntüyü ekranın yüksekliğine göre ayarlayın
+    resizeMode: 'contain', // Tüm görüntünün sığdığından emin olun
+  },
 });
 
 export default FloorPlanScreen;

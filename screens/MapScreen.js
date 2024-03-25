@@ -9,7 +9,7 @@ import * as Location from 'expo-location';
 import polyline from '@mapbox/polyline';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const MapScreen = () => {
+const MapScreen = ({ navigation }) => {
   const mapRef = useRef(null);
   const [region, setRegion] = useState({
     latitude: 40.890817,
@@ -74,10 +74,10 @@ const MapScreen = () => {
   };
 
   const handleMarkerPress = (category, marker) => {
-    // Kategori adını state'e kaydet
-    setSelectedMarkerCategory(category);
-    setModalVisible(true);
+    setSelectedMarkerCategory(category); // Kategori adını state'e kaydet
+    navigation.navigate('FloorPlan', { floor: category });
   };
+  
   
   // İki konum arasındaki mesafeyi hesaplayan fonksiyon
   const getDistance = (location1, location2) => {
@@ -230,7 +230,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
-    // Modal içerisindeki bileşenler arası dikey boşluğu artırmak için:
     justifyContent: 'space-around', // Bileşenleri eşit olarak dağıtır
   },
   modalText: {
@@ -242,8 +241,7 @@ const styles = StyleSheet.create({
     padding: 10,
     elevation: 2,
     backgroundColor: "#2196F3",
-    // Her buton arasında boşluk bırakmak için:
-    marginBottom: 10, // Her butonun altında 10 birim boşluk bırakır
+    marginBottom: 10,
   },
   textStyle: {
     color: "white",
