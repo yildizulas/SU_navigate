@@ -7,6 +7,7 @@ import markers from '../navigation/markers';
 import { zoomIn, zoomOut } from '../navigation/ZoomControls';
 import * as Location from 'expo-location';
 import polyline from '@mapbox/polyline';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const MapScreen = () => {
   const mapRef = useRef(null);
@@ -20,8 +21,9 @@ const MapScreen = () => {
   const [routeCoordinates, setRouteCoordinates] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(0);
-
+  const [selectedMarker, setSelectedMarker] = useState(null);
   const [visibleMarkers, setVisibleMarkers] = useState([]);
+  const [selectedMarkerCategory, setSelectedMarkerCategory] = useState(null); 
 
   useEffect(() => {
     (async () => {
@@ -69,6 +71,12 @@ const MapScreen = () => {
       console.log('No matching category or marker found');
       setRouteCoordinates([]);
     }
+  };
+
+  const handleMarkerPress = (category, marker) => {
+    // Kategori adını state'e kaydet
+    setSelectedMarkerCategory(category);
+    setModalVisible(true);
   };
   
   // İki konum arasındaki mesafeyi hesaplayan fonksiyon
@@ -149,7 +157,7 @@ const MapScreen = () => {
             <Marker
               key={marker.id}
               coordinate={marker.coordinate}
-              onPress={() => setModalVisible(true)}
+              onPress={() => handleMarkerPress(category, marker)}
             >
               <Icon name={marker.icon} size={30} color={marker.color} />
             </Marker>
@@ -169,15 +177,26 @@ const MapScreen = () => {
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
       >
-        <View style={styles.modalView}>
-          <Text style={styles.modalText}>Entrance Details</Text>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => setModalVisible(false)}
-          >
-            <Text style={styles.textStyle}>Hide Modal</Text>
-          </TouchableOpacity>
-        </View>
+        <SafeAreaView style={styles.safeArea}>
+          <View style={styles.modalView}>
+            <Text style={styles.modalText}>Entrance Details</Text>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => {
+                // Action for "Enter the Faculty"
+                console.log(`Entering the ${selectedMarkerCategory} Faculty`);
+              }}
+            >
+              <Text style={styles.textStyle}>{`Enter the ${selectedMarkerCategory} Faculty`}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => setModalVisible(false)}
+            >
+              <Text style={styles.textStyle}>Hide Modal</Text>
+            </TouchableOpacity>
+          </View>
+        </SafeAreaView>
       </Modal>
       <View style={styles.zoomContainer}>
         <TouchableOpacity style={styles.zoomButton} onPress={() => zoomIn(mapRef, region, setRegion)}>
@@ -210,7 +229,9 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.25,
     shadowRadius: 4,
-    elevation: 5
+    elevation: 5,
+    // Modal içerisindeki bileşenler arası dikey boşluğu artırmak için:
+    justifyContent: 'space-around', // Bileşenleri eşit olarak dağıtır
   },
   modalText: {
     marginBottom: 15,
@@ -220,7 +241,9 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 10,
     elevation: 2,
-    backgroundColor: "#2196F3"
+    backgroundColor: "#2196F3",
+    // Her buton arasında boşluk bırakmak için:
+    marginBottom: 10, // Her butonun altında 10 birim boşluk bırakır
   },
   textStyle: {
     color: "white",
@@ -247,6 +270,11 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 20,
     bottom: 20,
+  },
+  safeArea: {
+    margin: 50,
+    flex: 1,
+    backgroundColor: 'transparent',
   },
 });
 
