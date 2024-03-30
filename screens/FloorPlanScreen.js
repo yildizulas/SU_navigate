@@ -1,14 +1,23 @@
+// FloorPlanScreen.js
 import React from 'react';
-import { View, Image, StyleSheet } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import ImageViewer from 'react-native-image-zoom-viewer';
 
 const FloorPlanScreen = () => {
+  const images = [{
+    url: '',
+    props: {
+      source: require('../assets/floors/FENS/fens_floor1_1.png')
+    }
+  }];
+
   return (
     <View style={styles.container}>
-      <Image 
-        source={require('../assets/floors/FENS/fens_floor1_1.jpg')} 
-        style={styles.floorPlanImage} 
-        />
-      {/* Eğer yol çizdirmek isterseniz burada ekstra işlemler yapabilirsiniz. */}
+      <ImageViewer
+        imageUrls={images}
+        backgroundColor="transparent"
+        style={styles.floorPlanImage}
+      />
     </View>
   );
 };
@@ -20,10 +29,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   floorPlanImage: {
-    width: '100%', // Görüntüyü ekranın genişliğine göre ayarlayın
-    height: '100%', // Görüntüyü ekranın yüksekliğine göre ayarlayın
-    resizeMode: 'contain', // Tüm görüntünün sığdığından emin olun
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
   },
+  zoomInstructions: {
+    position: 'absolute',
+    bottom: 20,
+    left: 20,
+    right: 20,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    padding: 10,
+    borderRadius: 10,
+  }
 });
 
 export default FloorPlanScreen;
