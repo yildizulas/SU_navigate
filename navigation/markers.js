@@ -1,3 +1,10 @@
+const buildingDescriptions = {
+  FENS: "FENS\nFaculty of Engineering and Natural Sciences\nMühendislik ve Doğa Bilimleri Fakültesi",
+  FMAN: "FMAN\nFaculty of Management\nYönetim Bilimleri Fakültesi",
+  FASS: "aculty of Arts And Social Sciences\nSanat ve Sosyal Bilimler Fakültesi",
+  // Diğer binalar için de benzer şekilde açıklamalar eklenebilir
+};
+
 const markers = {
   FENS: [
     {
@@ -6,6 +13,7 @@ const markers = {
       coordinate: { latitude: 40.890817, longitude: 29.379623 },
       icon: 'home',
       color: '#0078D7',
+      description: buildingDescriptions.FENS,
     },
     {
       id: 'fens_floor1_2',
@@ -13,6 +21,7 @@ const markers = {
       coordinate: { latitude: 40.89055, longitude: 29.37971 },
       icon: 'home',
       color: '#0078D7',
+      description: buildingDescriptions.FENS,
     },
     {
       id: 'fens_floorG_1',
@@ -20,6 +29,7 @@ const markers = {
       coordinate: { latitude: 40.890903148416605, longitude: 29.37922546549066 },
       icon: 'home',
       color: '#0078D7',
+      description: buildingDescriptions.FENS,
     },
     {
       id: 'fens_floorG_2',
@@ -27,6 +37,7 @@ const markers = {
       coordinate: { latitude: 40.89066964385056, longitude: 29.378779426896696 },
       icon: 'home',
       color: '#0078D7',
+      description: buildingDescriptions.FENS,
     },
     {
       id: 'fens_floorG_3',
@@ -34,6 +45,7 @@ const markers = {
       coordinate: { latitude: 40.890356462128004, longitude: 29.378919583202656 },
       icon: 'home',
       color: '#0078D7',
+      description: buildingDescriptions.FENS,
     }
   ],
 
@@ -44,6 +56,7 @@ const markers = {
       coordinate: { latitude: 40.89217765986533, longitude: 29.379052741660065 },
       icon: 'home',
       color: '#0078D7',
+      description: buildingDescriptions.FMAN
     },
     {
       id: 'fman_floorG_1',
@@ -51,6 +64,7 @@ const markers = {
       coordinate: { latitude: 40.89173818690588, longitude: 29.379060283281678 },
       icon: 'home',
       color: '#0078D7',
+      description: buildingDescriptions.FMAN,
     },
     {
       id: 'fman_floorG_2',
@@ -58,6 +72,7 @@ const markers = {
       coordinate: { latitude: 40.89163477870607, longitude: 29.378594920039767 },
       icon: 'home',
       color: '#0078D7',
+      description: buildingDescriptions.FMAN,
     },
     {
       id: 'fman_floorG_3',
@@ -65,6 +80,7 @@ const markers = {
       coordinate: { latitude: 40.89203754883784, longitude: 29.37828311869922 },
       icon: 'home',
       color: '#0078D7',
+      description: buildingDescriptions.FMAN,
     }
   ],
 
@@ -75,6 +91,7 @@ const markers = {
       coordinate: { latitude: 40.89062134296104, longitude: 29.378548581550373 },
       icon: 'home',
       color: '#0078D7',
+      description: buildingDescriptions.FASS,
     },
     {
       id: 'fass_floor1_2',
@@ -82,6 +99,7 @@ const markers = {
       coordinate: { latitude: 40.89030816022006, longitude: 29.378680494354843 },
       icon: 'home',
       color: '#0078D7',
+      description: buildingDescriptions.FASS,
     },
     {
       id: 'fass_floorG_1',
@@ -89,6 +107,7 @@ const markers = {
       coordinate: { latitude: 40.89066185374734, longitude: 29.378119870407268 },
       icon: 'home',
       color: '#0078D7',
+      description: buildingDescriptions.FASS,
     },
     {
       id: 'fass_floorG_2',
@@ -96,6 +115,7 @@ const markers = {
       coordinate: { latitude: 40.89043124886767, longitude: 29.37767261035363 },
       icon: 'home',
       color: '#0078D7',
+      description: buildingDescriptions.FASS,
     },
     {
       id: 'fass_floorG_3',
@@ -103,6 +123,7 @@ const markers = {
       coordinate: { latitude: 40.89012274119029, longitude: 29.377804525150903 },
       icon: 'home',
       color: '#0078D7',
+      description: buildingDescriptions.FASS,
     }
   ],
 
@@ -844,7 +865,7 @@ const markers = {
     }
   ], 
 
-  
+
 
 };
 
