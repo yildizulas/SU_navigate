@@ -3,10 +3,15 @@ import React from 'react';
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import ImageViewer from 'react-native-image-zoom-viewer';
 
-const FloorPlanScreen = () => {
+const FloorPlanScreen = ({ route }) => {
+  // varsayılan değeri kullanarak `route.params` kontrol edin
+  const marker = route.params?.marker || 'default value';
+
+  // Marker'a göre görüntülenecek kat planını seçin
   const images = [{
     url: '',
     props: {
+      // varsayılan değer yerine marker'dan gelen bilgiyi kullanabilirsiniz
       source: require('../assets/floors/FENS/fens_floor1_1.png')
     }
   }];

@@ -73,11 +73,11 @@ const MapScreen = ({ navigation }) => {
     }
   };
 
-  const handleMarkerPress = (category, marker) => {
-    setSelectedMarkerCategory(category); // Kategori adını state'e kaydet
-    navigation.navigate('FloorPlan', { floor: category });
+  const handleMarkerPress = (marker, event) => {
+    event.stopPropagation();
+    setSelectedMarker(marker);
+    setModalVisible(true);
   };
-  
   
   // İki konum arasındaki mesafeyi hesaplayan fonksiyon
   const getDistance = (location1, location2) => {
@@ -136,6 +136,32 @@ const MapScreen = ({ navigation }) => {
       return { latitude: array[0], longitude: array[1] };
     });
   };
+  const ModalContent = () => {
+    if (!selectedMarker) return null;
+    
+    return (
+      <View style={styles.modalView}>
+        <TouchableOpacity
+          style={styles.closeButton}
+          onPress={() => {
+            setModalVisible(false);
+          }}
+        >
+          <Text style={styles.closeButtonText}>Back</Text>
+        </TouchableOpacity>
+        <Text style={styles.modalText}>{selectedMarker.description}</Text>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => {
+            setModalVisible(false);
+            navigation.navigate('FloorPlan', { marker: selectedMarker });
+          }}
+        >
+          <Text style={styles.textStyle}>Kat Planına Git</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -151,16 +177,22 @@ const MapScreen = ({ navigation }) => {
           initialRegion={region}
           showsUserLocation={true}
           onRegionChangeComplete={onRegionChangeComplete}
+          onPress={() => {
+            // Eğer burada modalVisible kontrolü yapılırsa, kullanıcı herhangi bir Marker'ın üzerine tıklamadığı sürece modal kapatılacaktır.
+            if (modalVisible) {
+              setModalVisible(false);
+            }
+          }}
         >
         {Object.keys(visibleMarkers).map(category => (
-          visibleMarkers[category].map(marker => (
-            <Marker
-              key={marker.id}
-              coordinate={marker.coordinate}
-              onPress={() => handleMarkerPress(category, marker)}
-            >
-              <Icon name={marker.icon} size={30} color={marker.color} />
-            </Marker>
+            visibleMarkers[category].map((marker, index) => (
+              <Marker
+                key={index}
+                coordinate={marker.coordinate}
+                onPress={(e) => handleMarkerPress(marker, e)}
+              >
+                <Icon name={marker.icon} size={30} color={marker.color} />
+              </Marker>
           ))
         ))}
         {routeCoordinates.length > 0 && (
@@ -173,29 +205,12 @@ const MapScreen = ({ navigation }) => {
       </MapView>
       <Modal
         animationType="slide"
-        transparent={false}
+        transparent={true}
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
       >
-        <SafeAreaView style={styles.safeArea}>
-          <View style={styles.modalView}>
-            <Text style={styles.modalText}>Entrance Details</Text>
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => {
-                // Action for "Enter the Faculty"
-                console.log(`Entering the ${selectedMarkerCategory} Faculty`);
-              }}
-            >
-              <Text style={styles.textStyle}>{`Enter the ${selectedMarkerCategory} Faculty`}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => setModalVisible(false)}
-            >
-              <Text style={styles.textStyle}>Hide Modal</Text>
-            </TouchableOpacity>
-          </View>
+        <SafeAreaView style={{ flex: 1, justifyContent: 'flex-end' }}>
+          <ModalContent />
         </SafeAreaView>
       </Modal>
       <View style={styles.zoomContainer}>
@@ -217,10 +232,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalView: {
-    margin: 20,
     backgroundColor: "white",
-    borderRadius: 20,
-    padding: 35,
+    borderTopRightRadius: 20,
+    borderTopLeftRadius: 20,
+    padding: 20,
     alignItems: "center",
     shadowColor: "#000",
     shadowOffset: {
@@ -230,7 +245,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
-    justifyContent: 'space-around', // Bileşenleri eşit olarak dağıtır
+    justifyContent: 'space-around',
+    position: 'absolute',
+    bottom: 0,
+    width: '100%', // Bu satırı ekleyin veya güncelleyin
+    height: '35%',
   },
   modalText: {
     marginBottom: 15,
@@ -270,9 +289,18 @@ const styles = StyleSheet.create({
     bottom: 20,
   },
   safeArea: {
-    margin: 50,
     flex: 1,
     backgroundColor: 'transparent',
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+  },
+  closeButtonText: {
+    fontSize: 18,
+    color: '#007AFF', // iOS geri butonu rengi
+    // ... diğer stil tanımlamalarınız
   },
 });
 
