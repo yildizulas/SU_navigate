@@ -3,7 +3,7 @@ import { Modal, Text, TouchableOpacity, View, StyleSheet, Alert } from 'react-na
 import MapView, { PROVIDER_GOOGLE, Marker, Polyline } from 'react-native-maps';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import SearchBar from '../navigation/SearchBar';
-import markers from '../navigation/markers';
+import { buildingDescriptions, markers } from '../navigation/markers';
 import { zoomIn, zoomOut } from '../navigation/ZoomControls';
 import * as Location from 'expo-location';
 import polyline from '@mapbox/polyline';
@@ -47,15 +47,19 @@ const MapScreen = ({ navigation }) => {
     const lowercasedQuery = query.toLowerCase();
     let closestMarker = null;
     let minDistance = Infinity;
-  
+
     // Kullanıcının mevcut konumunu al
     const { coords } = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
     const userLocation = { latitude: coords.latitude, longitude: coords.longitude };
-  
-    // Kategoriler arasında arama yap
-    Object.keys(markers).forEach(category => {
-      if (category.toLowerCase() === lowercasedQuery) {
-        markers[category].forEach(marker => {
+
+    // Tüm marker'ları ve açıklamalarını kontrol et
+    Object.keys(buildingDescriptions).forEach(key => {
+      const descriptions = buildingDescriptions[key].toLowerCase().split('\n'); // Açıklama metinlerini böl ve küçük harfe çevir
+
+      // Eğer sorgu açıklama metinlerinden herhangi birinde geçiyorsa
+      if (descriptions.some(description => description.includes(lowercasedQuery))) {
+        // Bu kategorideki tüm marker'ları kontrol et
+        markers[key].forEach(marker => {
           const distance = getDistance(userLocation, marker.coordinate);
           if (distance < minDistance) {
             closestMarker = marker;
@@ -64,14 +68,17 @@ const MapScreen = ({ navigation }) => {
         });
       }
     });
-  
+
     if (closestMarker && region) {
       await fetchRouteData(userLocation, closestMarker.coordinate);
+      setSelectedMarker(closestMarker); // En yakın marker'ı seçili marker olarak ayarla
+      setModalVisible(true); // Modal'ı göster
     } else {
-      console.log('No matching category or marker found');
+      console.log('No matching description or marker found');
       setRouteCoordinates([]);
     }
   };
+
 
   const handleMarkerPress = (marker, event) => {
     event.stopPropagation();

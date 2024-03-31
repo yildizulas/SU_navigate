@@ -1,4 +1,6 @@
-const buildingDescriptions = {
+// markers.js
+// SL düzeltilecek FENS ile karışabiliyor
+export const buildingDescriptions = {
   FENS: "FENS\nFaculty of Engineering and Natural Sciences\nMühendislik ve Doğa Bilimleri Fakültesi",
   FMAN: "FMAN\nFaculty of Management\nYönetim Bilimleri Fakültesi",
   FASS: "FASS\nFaculty of Arts And Social Sciences\nSanat ve Sosyal Bilimler Fakültesi",
@@ -51,7 +53,7 @@ const buildingDescriptions = {
   // Diğer binalar için de benzer şekilde açıklamalar eklenebilir
 };
 
-const markers = {
+export const markers = {
   FENS: [
     {
       id: 'fens_floor1_1',
