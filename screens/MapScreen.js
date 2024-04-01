@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Modal, Text, TouchableOpacity, View, StyleSheet, Alert } from 'react-native';
+import { Modal, Text, TouchableOpacity, View, TextInput, StyleSheet, Alert } from 'react-native';
 import MapView, { PROVIDER_GOOGLE, Marker, Polyline } from 'react-native-maps';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import SearchBar from '../navigation/SearchBar';
@@ -20,10 +20,8 @@ const MapScreen = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [routeCoordinates, setRouteCoordinates] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
-  const [zoomLevel, setZoomLevel] = useState(0);
   const [selectedMarker, setSelectedMarker] = useState(null);
   const [visibleMarkers, setVisibleMarkers] = useState([]);
-  const [selectedMarkerCategory, setSelectedMarkerCategory] = useState(null); 
 
   useEffect(() => {
     (async () => {
@@ -43,49 +41,120 @@ const MapScreen = ({ navigation }) => {
     })();
   }, []);
 
-  const handleSearch = async (query) => {
-    const lowercasedQuery = query.toLowerCase();
-    let closestMarker = null;
-    let minDistance = Infinity;
+  const handleMarkerPress = (marker) => {
+    setSelectedMarker(marker);
+    setModalVisible(true);
 
-    // Kullanıcının mevcut konumunu al
+    const markerRegion = {
+        latitude: marker.coordinate.latitude,
+        longitude: marker.coordinate.longitude,
+        latitudeDelta: region.latitudeDelta,
+        longitudeDelta: region.longitudeDelta,
+    };
+    mapRef.current.animateToRegion(markerRegion, 1000);
+  };
+
+  const getSimilarity = (str1, str2) => {
+    let maxSubstrLength = 0;
+    for (let i = 0; i < str1.length; i++) {
+      for (let j = 0; j < str2.length; j++) {
+        let temp = 0;
+        while (i + temp < str1.length && j + temp < str2.length && str1[i + temp] === str2[j + temp]) {
+          temp++;
+        }
+        maxSubstrLength = Math.max(maxSubstrLength, temp);
+      }
+    }
+    return maxSubstrLength >= 3; // Eğer en uzun ortak alt dizi 3 veya daha fazla karakter uzunluğunda ise true döner
+  };
+  
+  const handleSearch = async (query) => {
+    const lowercasedQuery = query.toLowerCase().trim();
+    let closestMarker = null;
+    let exactMatchFound = false;
+
     const { coords } = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
     const userLocation = { latitude: coords.latitude, longitude: coords.longitude };
 
-    // Tüm marker'ları ve açıklamalarını kontrol et
     Object.keys(buildingDescriptions).forEach(key => {
-      const descriptions = buildingDescriptions[key].toLowerCase().split('\n'); // Açıklama metinlerini böl ve küçük harfe çevir
-
-      // Eğer sorgu açıklama metinlerinden herhangi birinde geçiyorsa
-      if (descriptions.some(description => description.includes(lowercasedQuery))) {
-        // Bu kategorideki tüm marker'ları kontrol et
-        markers[key].forEach(marker => {
-          const distance = getDistance(userLocation, marker.coordinate);
-          if (distance < minDistance) {
-            closestMarker = marker;
-            minDistance = distance;
-          }
-        });
-      }
+        const descriptionLines = buildingDescriptions[key].toLowerCase().split('\n');
+        if (descriptionLines.some(line => line.trim() === lowercasedQuery)) {
+            markers[key].forEach(marker => {
+                const distance = getDistance(userLocation, marker.coordinate);
+                if (!exactMatchFound || distance < getDistance(userLocation, closestMarker?.coordinate)) {
+                    closestMarker = marker;
+                    exactMatchFound = true;
+                }
+            });
+        }
     });
 
-    if (closestMarker && region) {
-      await fetchRouteData(userLocation, closestMarker.coordinate);
-      setSelectedMarker(closestMarker); // En yakın marker'ı seçili marker olarak ayarla
-      setModalVisible(true); // Modal'ı göster
+    if (!exactMatchFound) {
+        let highestSimilarity = 0;
+        Object.keys(buildingDescriptions).forEach(key => {
+            markers[key].forEach(marker => {
+                const similarity = getSimilarity(marker.name.toLowerCase(), lowercasedQuery);
+                if (similarity > highestSimilarity) {
+                    closestMarker = marker;
+                    highestSimilarity = similarity;
+                }
+            });
+        });
+    }
+
+    if (closestMarker) {
+        setSelectedMarker(closestMarker);
+        setModalVisible(true);
+
+        const newRegion = {
+            latitude: closestMarker.coordinate.latitude,
+            longitude: closestMarker.coordinate.longitude,
+            latitudeDelta: 0.0013,
+            longitudeDelta: 0.0013,
+        };
+        mapRef.current.animateToRegion(newRegion, 1000);
     } else {
-      console.log('No matching description or marker found');
-      setRouteCoordinates([]);
+        console.log('No matching description or marker found');
+        setRouteCoordinates([]);
     }
   };
 
+  const handleGoPress = async () => {
+    if (selectedMarker) {
+        const currentLocation = await fetchCurrentLocation();
+        await fetchRouteData(currentLocation, selectedMarker.coordinate);
 
-  const handleMarkerPress = (marker, event) => {
-    event.stopPropagation();
-    setSelectedMarker(marker);
-    setModalVisible(true);
+        // Ensure we have the route coordinates available to calculate the bounds
+        if (routeCoordinates.length > 0) {
+            const maxLat = Math.max(currentLocation.latitude, selectedMarker.coordinate.latitude);
+            const minLat = Math.min(currentLocation.latitude, selectedMarker.coordinate.latitude);
+            const maxLng = Math.max(currentLocation.longitude, selectedMarker.coordinate.longitude);
+            const minLng = Math.min(currentLocation.longitude, selectedMarker.coordinate.longitude);
+
+            // Calculate the center of the map view
+            const centerLat = (maxLat + minLat) / 2;
+            const centerLng = (maxLng + minLng) / 2;
+
+            // Calculate the deltas with a reasonable padding to ensure both locations are visible
+            const latitudeDelta = Math.abs(maxLat - minLat) * 1.5; // Increase multiplier for more padding if needed
+            const longitudeDelta = Math.abs(maxLng - minLng) * 1.5; // Increase multiplier for more padding if needed
+
+            const newRegion = {
+                latitude: centerLat,
+                longitude: centerLng,
+                latitudeDelta,
+                longitudeDelta,
+            };
+
+            mapRef.current.animateToRegion(newRegion, 1000); // Smoothly animate to the new region
+        }
+
+        setModalVisible(false); // Optionally close the modal if needed
+    } else {
+        console.log('No marker selected');
+    }
   };
-  
+
   // İki konum arasındaki mesafeyi hesaplayan fonksiyon
   const getDistance = (location1, location2) => {
     const rad = (x) => x * Math.PI / 180;
@@ -143,6 +212,15 @@ const MapScreen = ({ navigation }) => {
       return { latitude: array[0], longitude: array[1] };
     });
   };
+
+  const fetchCurrentLocation = async () => {
+    let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
+    return {
+      latitude: location.coords.latitude,
+      longitude: location.coords.longitude,
+    };
+  };
+
   const ModalContent = () => {
     if (!selectedMarker) return null;
     
@@ -150,9 +228,7 @@ const MapScreen = ({ navigation }) => {
       <View style={styles.modalView}>
         <TouchableOpacity
           style={styles.closeButton}
-          onPress={() => {
-            setModalVisible(false);
-          }}
+          onPress={() => setModalVisible(false)}
         >
           <Text style={styles.closeButtonText}>Back</Text>
         </TouchableOpacity>
@@ -164,7 +240,12 @@ const MapScreen = ({ navigation }) => {
             navigation.navigate('FloorPlan', { marker: selectedMarker });
           }}
         >
-          <Text style={styles.textStyle}>Kat Planına Git</Text>
+          <Icon name="university" size={24} color="white" />
+          <Text style={styles.textStyle}>Inside of the Building</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={handleGoPress}>
+          <Icon name="location-arrow" size={24} color="white" />
+          <Text style={styles.textStyle}>Go</Text>
         </TouchableOpacity>
       </View>
     );
@@ -220,6 +301,7 @@ const MapScreen = ({ navigation }) => {
           <ModalContent />
         </SafeAreaView>
       </Modal>
+
       <View style={styles.zoomContainer}>
         <TouchableOpacity style={styles.zoomButton} onPress={() => zoomIn(mapRef, region, setRegion)}>
           <Icon name="plus" size={24} color="black" />
@@ -239,10 +321,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalView: {
-    backgroundColor: "white",
-    borderTopRightRadius: 20,
-    borderTopLeftRadius: 20,
-    padding: 20,
+    borderRadius: 20, // Köşeleri yuvarlaklaştır
+    padding: 35,
     alignItems: "center",
     shadowColor: "#000",
     shadowOffset: {
@@ -250,29 +330,44 @@ const styles = StyleSheet.create({
       height: 2
     },
     shadowOpacity: 0.25,
-    shadowRadius: 4,
+    shadowRadius: 3.84,
     elevation: 5,
-    justifyContent: 'space-around',
-    position: 'absolute',
-    bottom: 0,
-    width: '100%', // Bu satırı ekleyin veya güncelleyin
-    height: '35%',
+    width: '90%', // Modalın genişliğini azalt
+    alignSelf: 'center', // Merkezileştir
+    borderWidth: 1,
+    borderColor: '#ddd', // Add a border to the modal
+    backgroundColor: "#f9f9f9", // Light background for the modal content
   },
   modalText: {
+    fontSize: 16, // Yazı tipi boyutunu artır
+    fontWeight: "bold", // Yazı tipi kalınlığını artır
+    textAlign: "center",
     marginBottom: 15,
-    textAlign: "center"
+    paddingBottom: 10, // Add padding at the bottom
+    borderBottomWidth: 1,
+    borderColor: '#ddd', // Add a separator
   },
   button: {
     borderRadius: 20,
     padding: 10,
     elevation: 2,
+    flexDirection: 'row', // İçerikleri yatay olarak hizala
+    alignItems: 'center', // İçerikleri dikey olarak ortala
+    justifyContent: 'center', // İçerikleri yatay olarak ortala
+    // Butonun diğer stil tanımlamaları
     backgroundColor: "#2196F3",
     marginBottom: 10,
+    marginTop: 15, // Add margin at the top
   },
   textStyle: {
     color: "white",
     fontWeight: "bold",
-    textAlign: "center"
+    textAlign: "center",
+    marginLeft: 8, // İcon ile yazı arasında boşluk bırak
+  },
+  buttonIcon: {
+    fontSize: 20, // İcon boyutu
+    color: "white", // İcon rengi
   },
   zoomButton: {
     backgroundColor: 'white',
@@ -307,7 +402,15 @@ const styles = StyleSheet.create({
   closeButtonText: {
     fontSize: 18,
     color: '#007AFF', // iOS geri butonu rengi
-    // ... diğer stil tanımlamalarınız
+  },
+  textInput: {
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    borderRadius: 5,
+    padding: 10,
+    marginVertical: 10,
+    width: '100%',
   },
 });
 

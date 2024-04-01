@@ -1,5 +1,4 @@
 // markers.js
-// SL düzeltilecek FENS ile karışabiliyor
 export const buildingDescriptions = {
   FENS: "FENS\nFaculty of Engineering and Natural Sciences\nMühendislik ve Doğa Bilimleri Fakültesi",
   FMAN: "FMAN\nFaculty of Management\nYönetim Bilimleri Fakültesi",
