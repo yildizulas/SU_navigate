@@ -54,20 +54,30 @@ const MapScreen = ({ navigation }) => {
     mapRef.current.animateToRegion(markerRegion, 1000);
   };
 
-  const getSimilarity = (str1, str2) => {
-    let maxSubstrLength = 0;
-    for (let i = 0; i < str1.length; i++) {
-      for (let j = 0; j < str2.length; j++) {
-        let temp = 0;
-        while (i + temp < str1.length && j + temp < str2.length && str1[i + temp] === str2[j + temp]) {
-          temp++;
-        }
-        maxSubstrLength = Math.max(maxSubstrLength, temp);
-      }
+  const levenshteinDistance = (str1, str2) => {
+    const track = Array(str2.length + 1).fill(null).map(() =>
+        Array(str1.length + 1).fill(null));
+    for (let i = 0; i <= str1.length; i += 1) {
+        track[0][i] = i;
     }
-    return maxSubstrLength >= 3; // Eğer en uzun ortak alt dizi 3 veya daha fazla karakter uzunluğunda ise true döner
+    for (let j = 0; j <= str2.length; j += 1) {
+        track[j][0] = j;
+    }
+    for (let j = 1; j <= str2.length; j += 1) {
+        for (let i = 1; i <= str1.length; i += 1) {
+            const indicator = str1[i - 1] === str2[j - 1] ? 0 : 1;
+            track[j][i] = Math.min(
+                track[j][i - 1] + 1, // deletion
+                track[j - 1][i] + 1, // insertion
+                track[j - 1][i - 1] + indicator, // substitution
+            );
+        }
+    }
+    return track[str2.length][str1.length];
   };
   
+  const similarityThreshold = 3;
+
   const handleSearch = async (query) => {
     const lowercasedQuery = query.toLowerCase().trim();
     let closestMarker = null;
@@ -76,12 +86,13 @@ const MapScreen = ({ navigation }) => {
     const { coords } = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
     const userLocation = { latitude: coords.latitude, longitude: coords.longitude };
 
+    // Check for exact match in the keys and descriptions first
     Object.keys(buildingDescriptions).forEach(key => {
-        const descriptionLines = buildingDescriptions[key].toLowerCase().split('\n');
-        if (descriptionLines.some(line => line.trim() === lowercasedQuery)) {
+        const descriptions = buildingDescriptions[key].toLowerCase();
+        if (key.toLowerCase().includes(lowercasedQuery) || descriptions.includes(lowercasedQuery)) {
             markers[key].forEach(marker => {
                 const distance = getDistance(userLocation, marker.coordinate);
-                if (!exactMatchFound || distance < getDistance(userLocation, closestMarker?.coordinate)) {
+                if (!closestMarker || distance < getDistance(userLocation, closestMarker.coordinate)) {
                     closestMarker = marker;
                     exactMatchFound = true;
                 }
@@ -89,14 +100,15 @@ const MapScreen = ({ navigation }) => {
         }
     });
 
+    // If no exact match found, use similarity to find the closest match
     if (!exactMatchFound) {
-        let highestSimilarity = 0;
+        let lowestDistance = Infinity;
         Object.keys(buildingDescriptions).forEach(key => {
             markers[key].forEach(marker => {
-                const similarity = getSimilarity(marker.name.toLowerCase(), lowercasedQuery);
-                if (similarity > highestSimilarity) {
+                const distance = levenshteinDistance(marker.name.toLowerCase(), lowercasedQuery);
+                if (distance < lowestDistance && distance <= similarityThreshold) {
                     closestMarker = marker;
-                    highestSimilarity = similarity;
+                    lowestDistance = distance;
                 }
             });
         });
@@ -118,6 +130,7 @@ const MapScreen = ({ navigation }) => {
         setRouteCoordinates([]);
     }
   };
+
 
   const handleGoPress = async () => {
     if (selectedMarker) {
@@ -157,16 +170,17 @@ const MapScreen = ({ navigation }) => {
 
   // İki konum arasındaki mesafeyi hesaplayan fonksiyon
   const getDistance = (location1, location2) => {
-    const rad = (x) => x * Math.PI / 180;
+    const toRadians = (deg) => deg * Math.PI / 180;
     const R = 6378137; // Earth’s mean radius in meter
-    const dLat = rad(location2.latitude - location1.latitude);
-    const dLong = rad(location2.longitude - location1.longitude);
+    const dLat = toRadians(location2.latitude - location1.latitude);
+    const dLong = toRadians(location2.longitude - location1.longitude);
+    const lat1 = toRadians(location1.latitude);
+    const lat2 = toRadians(location2.latitude);
+
     const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-              Math.cos(rad(location1.latitude)) * Math.cos(rad(location2.latitude)) *
-              Math.sin(dLong / 2) * Math.sin(dLong / 2);
+              Math.sin(dLong / 2) * Math.sin(dLong / 2) * Math.cos(lat1) * Math.cos(lat2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const d = R * c;
-    return d; // returns the distance in meter
+    return R * c; // returns the distance in meter
   };
 
   const onRegionChangeComplete = (newRegion) => {
@@ -221,6 +235,42 @@ const MapScreen = ({ navigation }) => {
     };
   };
 
+  const MAX_DISTANCE = 150; // 150 metre çapı olarak belirledik
+
+  const handleMapPress = async (e) => {
+      const clickedLocation = e.nativeEvent.coordinate;
+      let closestMarker = null;
+      let shortestDistance = Infinity;
+
+      Object.keys(markers).forEach(category => {
+          markers[category].forEach(marker => {
+              const distance = getDistance(clickedLocation, marker.coordinate);
+              if (distance < shortestDistance && distance <= MAX_DISTANCE) {
+                  shortestDistance = distance;
+                  closestMarker = marker;
+              }
+          });
+      });
+
+      if (closestMarker) {
+          setSelectedMarker(closestMarker);
+          setModalVisible(true);
+
+          const newRegion = {
+              latitude: closestMarker.coordinate.latitude,
+              longitude: closestMarker.coordinate.longitude,
+              latitudeDelta: region.latitudeDelta,
+              longitudeDelta: region.longitudeDelta,
+          };
+          mapRef.current.animateToRegion(newRegion, 1000);
+      } else {
+          console.log('No nearby marker found');
+          setModalVisible(false);
+          setSelectedMarker(null);
+      }
+  };
+
+
   const ModalContent = () => {
     if (!selectedMarker) return null;
     
@@ -265,24 +315,16 @@ const MapScreen = ({ navigation }) => {
           initialRegion={region}
           showsUserLocation={true}
           onRegionChangeComplete={onRegionChangeComplete}
-          onPress={() => {
-            // Eğer burada modalVisible kontrolü yapılırsa, kullanıcı herhangi bir Marker'ın üzerine tıklamadığı sürece modal kapatılacaktır.
-            if (modalVisible) {
-              setModalVisible(false);
-            }
-          }}
+          onPress={handleMapPress}
         >
-        {Object.keys(visibleMarkers).map(category => (
-            visibleMarkers[category].map((marker, index) => (
-              <Marker
-                key={index}
-                coordinate={marker.coordinate}
-                onPress={(e) => handleMarkerPress(marker, e)}
-              >
-                <Icon name={marker.icon} size={30} color={marker.color} />
-              </Marker>
-          ))
-        ))}
+        {selectedMarker && (
+        <Marker
+            coordinate={selectedMarker.coordinate}
+            onPress={() => handleMarkerPress(selectedMarker)}
+        >
+            <Icon name={selectedMarker.icon} size={30} color={selectedMarker.color} />
+        </Marker>
+    )}
         {routeCoordinates.length > 0 && (
           <Polyline
             coordinates={routeCoordinates}

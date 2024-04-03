@@ -16,7 +16,7 @@ export const buildingDescriptions = {
   Coffy: "Coffy",
   PizzaBulls: "Pizza Bulls",
   Subway: "Subway",
-  Shuttle: "Shuttle Area\nServis Aranı",
+  Shuttle: "Shuttle Area\nServis Alanı",
   KM18: "KM18 Stop\nKM18 Durağı",
   Medline: "Medline\nSağlık Merkezi",
   KargoMerkezi: "Communication Center\nKargo Merkezi",
