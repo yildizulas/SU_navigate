@@ -3,7 +3,7 @@ import { Modal, Text, TouchableOpacity, View, TextInput, StyleSheet, Alert } fro
 import MapView, { PROVIDER_GOOGLE, Marker, Polyline } from 'react-native-maps';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import SearchBar from '../navigation/SearchBar';
-import { buildingDescriptions, markers } from '../navigation/markers';
+import { buildingDescriptions, markers, facultyMembers } from '../navigation/markers';
 import { zoomIn, zoomOut } from '../navigation/ZoomControls';
 import * as Location from 'expo-location';
 import polyline from '@mapbox/polyline';
@@ -80,58 +80,78 @@ const MapScreen = ({ navigation }) => {
 
   const handleSearch = async (query) => {
     const lowercasedQuery = query.toLowerCase().trim();
-    let closestMarker = null;
-    let exactMatchFound = false;
-
-    const { coords } = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
-    const userLocation = { latitude: coords.latitude, longitude: coords.longitude };
-
-    // Check for exact match in the keys and descriptions first
-    Object.keys(buildingDescriptions).forEach(key => {
-        const descriptions = buildingDescriptions[key].toLowerCase();
-        if (key.toLowerCase().includes(lowercasedQuery) || descriptions.includes(lowercasedQuery)) {
-            markers[key].forEach(marker => {
-                const distance = getDistance(userLocation, marker.coordinate);
-                if (!closestMarker || distance < getDistance(userLocation, closestMarker.coordinate)) {
-                    closestMarker = marker;
-                    exactMatchFound = true;
-                }
-            });
-        }
+    let foundFacultyMember = null;
+  
+    // Faculty members içinde arama yap
+    Object.entries(facultyMembers).forEach(([name, details]) => {
+      if (name.toLowerCase().includes(lowercasedQuery)) {
+        foundFacultyMember = { name, ...details };
+      }
     });
-
-    // If no exact match found, use similarity to find the closest match
-    if (!exactMatchFound) {
-        let lowestDistance = Infinity;
-        Object.keys(buildingDescriptions).forEach(key => {
-            markers[key].forEach(marker => {
-                const distance = levenshteinDistance(marker.name.toLowerCase(), lowercasedQuery);
-                if (distance < lowestDistance && distance <= similarityThreshold) {
-                    closestMarker = marker;
-                    lowestDistance = distance;
-                }
-            });
-        });
-    }
-
-    if (closestMarker) {
-        setSelectedMarker(closestMarker);
-        setModalVisible(true);
-
-        const newRegion = {
-            latitude: closestMarker.coordinate.latitude,
-            longitude: closestMarker.coordinate.longitude,
-            latitudeDelta: 0.0013,
-            longitudeDelta: 0.0013,
+  
+    if (foundFacultyMember) {
+      // Hoca bulunduysa ilgili fakültenin marker'ına zoom yap ve modal içeriğini hazırla
+      const buildingMarker = markers[foundFacultyMember.building]?.[0];
+      if (buildingMarker) {
+        const markerWithDetails = {
+          ...buildingMarker,
+          title: foundFacultyMember.name,
+          description: `${foundFacultyMember.building} ${foundFacultyMember.room}`,
+          type: 'faculty'
         };
+        setSelectedMarker(markerWithDetails);
+  
+        // Haritada zoom yap ve modalı aç
+        const newRegion = {
+          ...region,
+          latitude: markerWithDetails.coordinate.latitude,
+          longitude: markerWithDetails.coordinate.longitude,
+          latitudeDelta: 0.002,
+          longitudeDelta: 0.002,
+        };
+        setRegion(newRegion); // Bunu ekleyin ki state güncellensin ve harita yeni region'a zoom yapsın
         mapRef.current.animateToRegion(newRegion, 1000);
+        setModalVisible(true); // Modal'ı aç
+      } else {
+        console.log('No matching building marker found');
+      }
     } else {
-        console.log('No matching description or marker found');
-        setRouteCoordinates([]);
+      // Eğer hoca bulunamazsa genel bina araması yap
+      let closestMarker = null;
+      let lowestDistance = Infinity;
+      Object.keys(markers).forEach(key => {
+        markers[key].forEach(marker => {
+          const distance = levenshteinDistance(marker.name.toLowerCase(), lowercasedQuery);
+          if (distance < lowestDistance && distance <= similarityThreshold) {
+            closestMarker = marker;
+            lowestDistance = distance;
+          }
+        });
+      });
+  
+      if (closestMarker) {
+        setSelectedMarker({
+          ...closestMarker,
+          type: 'building' // Bu tür, genel bina marker'ları için kullanılır
+        });
+      } else {
+        console.log('No matching marker found');
+      }
+    }
+  
+    // Seçilen marker varsa, ilgili bölgeye zoom yap ve modalı göster
+    if (selectedMarker) {
+      const newRegion = {
+        latitude: selectedMarker.coordinate.latitude,
+        longitude: selectedMarker.coordinate.longitude,
+        latitudeDelta: 0.002,
+        longitudeDelta: 0.002,
+      };
+      mapRef.current.animateToRegion(newRegion, 1000);
+      setModalVisible(true);
     }
   };
-
-
+  
   const handleGoPress = async () => {
     if (selectedMarker) {
         const currentLocation = await fetchCurrentLocation();
@@ -273,9 +293,27 @@ const MapScreen = ({ navigation }) => {
 
   const ModalContent = () => {
     if (!selectedMarker) return null;
+
+  // Eğer seçilen marker bir faculty member ise özel içeriği göster
+  if (selectedMarker.type === 'faculty') {
+    return (
+      <View style={styles.modalView}>
+        <TouchableOpacity
+          style={styles.closeButton}
+          onPress={() => setModalVisible(false)}
+        >
+          <Text style={styles.closeButtonText}>Geri</Text>
+        </TouchableOpacity>
+        <Text style={styles.modalText}>{selectedMarker.title}</Text>
+        <Text style={styles.modalText}>{selectedMarker.description}</Text>
+      </View>
+    );
+  }
     
     return (
       <View style={styles.modalView}>
+        
+
         <TouchableOpacity
           style={styles.closeButton}
           onPress={() => setModalVisible(false)}
