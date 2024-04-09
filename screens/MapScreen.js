@@ -101,20 +101,18 @@ const MapScreen = ({ navigation }) => {
   
   const calculateSuggestions = (query) => {
     let matches = [];
-    // Binalar için eşleşmeleri bul
+    // Binalar ve açıklamaları için eşleşmeleri bul
     Object.keys(buildingDescriptions).forEach((key) => {
-      const description = buildingDescriptions[key];
-      const descriptionLowerCase = description.toLowerCase();
-      if (descriptionLowerCase.includes(query.toLowerCase())) {
-        const firstLine = description.split('\n')[0];
-        matches.push({ match: firstLine, key, type: 'building' });
+      const descriptionLines = buildingDescriptions[key].split('\n');
+      const matchedLine = descriptionLines.find(line => line.toLowerCase().includes(query.toLowerCase()));
+      if (matchedLine) {
+        matches.push({ match: matchedLine, key, type: 'building' });
       }
     });
   
     // Öğretim üyeleri için eşleşmeleri bul
     Object.keys(facultyMembers).forEach((name) => {
-      const nameLowerCase = name.toLowerCase();
-      if (nameLowerCase.includes(query.toLowerCase())) {
+      if (name.toLowerCase().includes(query.toLowerCase())) {
         const facultyDetail = facultyMembers[name];
         matches.push({ match: name, key: name, building: facultyDetail.building, type: 'faculty' });
       }
@@ -123,10 +121,6 @@ const MapScreen = ({ navigation }) => {
     return matches;
   };
   
-  
-  
-  
-
   const getSuggestionItemStyle = (index) => {
     const isLastItem = index === suggestions.length - 1;
     const isFirstItem = index === 0;
