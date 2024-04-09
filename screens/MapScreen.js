@@ -103,15 +103,18 @@ const MapScreen = ({ navigation }) => {
     let matches = [];
     // Binalar için eşleşmeleri bul
     Object.keys(buildingDescriptions).forEach((key) => {
-      const description = buildingDescriptions[key].toLowerCase();
-      if (description.includes(query.toLowerCase())) {
-        matches.push({ match: description.split('\n')[0], key, type: 'building' });
+      const description = buildingDescriptions[key];
+      const descriptionLowerCase = description.toLowerCase();
+      if (descriptionLowerCase.includes(query.toLowerCase())) {
+        const firstLine = description.split('\n')[0];
+        matches.push({ match: firstLine, key, type: 'building' });
       }
     });
   
     // Öğretim üyeleri için eşleşmeleri bul
     Object.keys(facultyMembers).forEach((name) => {
-      if (name.toLowerCase().includes(query.toLowerCase())) {
+      const nameLowerCase = name.toLowerCase();
+      if (nameLowerCase.includes(query.toLowerCase())) {
         const facultyDetail = facultyMembers[name];
         matches.push({ match: name, key: name, building: facultyDetail.building, type: 'faculty' });
       }
@@ -119,6 +122,7 @@ const MapScreen = ({ navigation }) => {
   
     return matches;
   };
+  
   
   
   
