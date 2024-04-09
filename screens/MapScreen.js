@@ -369,6 +369,13 @@ const MapScreen = ({ navigation }) => {
   const ModalContent = () => {
     if (!selectedMarker) return null;
 
+    const goButton = (
+      <TouchableOpacity style={styles.button} onPress={handleGoPress}>
+        <Icon name="location-arrow" size={24} color="white" />
+        <Text style={styles.textStyle}>Go</Text>
+      </TouchableOpacity>
+    );
+
   // Eğer seçilen marker bir faculty member ise özel içeriği göster
   if (selectedMarker.type === 'faculty') {
     return (
@@ -377,18 +384,18 @@ const MapScreen = ({ navigation }) => {
           style={styles.closeButton}
           onPress={() => setModalVisible(false)}
         >
-          <Text style={styles.closeButtonText}>Geri</Text>
+          <Text style={styles.closeButtonText}>Close</Text>
         </TouchableOpacity>
         <Text style={styles.modalText}>{selectedMarker.title}</Text>
         <Text style={styles.modalText}>{selectedMarker.description}</Text>
+        {/* Render the goButton if the selectedMarker is a faculty member */}
+        {selectedMarker.type === 'faculty' && goButton}
       </View>
     );
   }
     
     return (
       <View style={styles.modalView}>
-        
-
         <TouchableOpacity
           style={styles.closeButton}
           onPress={() => setModalVisible(false)}
