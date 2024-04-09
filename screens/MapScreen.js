@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Modal, Text, TouchableOpacity, View, TextInput, StyleSheet, Alert } from 'react-native';
+import React, { useState, useRef, useEffect, Fragment } from 'react';
+import { Modal, Text, TouchableOpacity, View, TextInput, StyleSheet, Alert, FlatList, Platform } from 'react-native';
 import MapView, { PROVIDER_GOOGLE, Marker, Polyline } from 'react-native-maps';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import SearchBar from '../navigation/SearchBar';
@@ -22,7 +22,10 @@ const MapScreen = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedMarker, setSelectedMarker] = useState(null);
   const [visibleMarkers, setVisibleMarkers] = useState([]);
+  const [suggestions, setSuggestions] = useState([]);
 
+
+    // İlk useEffect hook'u, component yüklendiğinde konum izni isteyip, kullanıcının mevcut konumunu almak için.
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -40,6 +43,26 @@ const MapScreen = ({ navigation }) => {
       });
     })();
   }, []);
+
+  // İkinci useEffect hook'u, arama sorgusunda her değişiklik olduğunda otomatik tamamlama önerilerini güncellemek için.
+  useEffect(() => {
+    // Otomatik tamamlama önerilerini hesaplayan fonksiyonu çağır
+    const updateSuggestions = async () => {
+      if (searchQuery.trim() === '') {
+        setSuggestions([]);
+      } else {
+        const newSuggestions = calculateSuggestions(searchQuery).slice(0, 5); // En yakın 5 sonucu al
+        setSuggestions(newSuggestions);
+      }
+    };
+
+    const delayDebounce = setTimeout(() => {
+      updateSuggestions();
+    }, 500); // Kullanıcı yazmayı durdurduktan sonra 0.5 saniye bekleyip önerileri güncelle
+
+    return () => clearTimeout(delayDebounce); // Cleanup fonksiyonu
+  }, [searchQuery]); // searchQuery her değiştiğinde bu useEffect tetiklenecek
+
 
   const handleMarkerPress = (marker) => {
     setSelectedMarker(marker);
@@ -76,6 +99,78 @@ const MapScreen = ({ navigation }) => {
     return track[str2.length][str1.length];
   };
   
+  const calculateSuggestions = (query) => {
+    let matches = [];
+    const allKeys = [...Object.keys(buildingDescriptions), ...Object.keys(facultyMembers)];
+  
+    allKeys.forEach(key => {
+      const description = buildingDescriptions[key] || facultyMembers[key] || '';
+      // Sadece description bir string ise işleme al
+      if (typeof description === 'string' && (
+        key.toLowerCase().startsWith(query.toLowerCase()) ||
+        description.toLowerCase().includes(query.toLowerCase())
+      )) {
+        const match = description.split('\n')[0]; // Açıklamanın ilk satırını al
+        matches.push(match);
+      }
+    });
+  
+    return matches;
+  };
+  
+
+  const getSuggestionItemStyle = (index) => {
+    const isLastItem = index === suggestions.length - 1;
+    const isFirstItem = index === 0;
+    const borderRadius = 20;
+    const styles = {
+      padding: 10,
+      borderBottomWidth: 1,
+      borderBottomColor: '#ccc',
+      backgroundColor: 'white',
+      // İlk ve son öğe için yuvarlak köşe uygula
+      borderTopLeftRadius: isFirstItem ? borderRadius : 0,
+      borderTopRightRadius: isFirstItem ? borderRadius : 0,
+      borderBottomLeftRadius: isLastItem ? borderRadius : 0,
+      borderBottomRightRadius: isLastItem ? borderRadius : 0,
+    };
+
+    // Eğer ilk öğeyse borderBottomWidth'u kaldır
+    if (isFirstItem) {
+      delete styles.borderBottomWidth;
+      delete styles.borderBottomColor;
+    }
+
+    return styles;
+  };
+
+  const renderItem = ({ item }) => {
+    // item, şimdi açıklama metni
+    return (
+      <TouchableOpacity onPress={() => {
+        setSearchQuery(item);
+        // Burada arama sonucu anahtar kelimeye çevrilip ona göre işlem yapılmalı
+        handleSearch(item); 
+      }}>
+        <Text style={styles.suggestionItem}>{item}</Text>
+      </TouchableOpacity>
+    );
+  };
+  
+
+  // Önerileri göstermek için FlatList component
+  const renderSuggestions = () => {
+    // Suggestion listesini göster
+    return suggestions.length > 0 ? (
+      <FlatList
+        data={suggestions}
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={renderItem} // Güncellenmiş renderItem kullanımı
+        style={styles.suggestionsContainer}
+      />
+    ) : null;
+  };
+
   const similarityThreshold = 3;
 
   const handleSearch = async (query) => {
@@ -340,57 +435,67 @@ const MapScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <SearchBar 
-        searchQuery={searchQuery} 
-        setSearchQuery={setSearchQuery} 
-        onSearch={handleSearch} 
-      />
-      <MapView
-          ref={mapRef}
-          provider={PROVIDER_GOOGLE}
-          style={styles.map}
-          initialRegion={region}
-          showsUserLocation={true}
-          onRegionChangeComplete={onRegionChangeComplete}
-          onPress={handleMapPress}
-        >
-        {selectedMarker && (
-        <Marker
-            coordinate={selectedMarker.coordinate}
-            onPress={() => handleMarkerPress(selectedMarker)}
-        >
-            <Icon name={selectedMarker.icon} size={30} color={selectedMarker.color} />
-        </Marker>
-    )}
-        {routeCoordinates.length > 0 && (
-          <Polyline
-            coordinates={routeCoordinates}
-            strokeWidth={2}
-            strokeColor="purple"
+    <Fragment>
+      <View style={styles.container}>
+        <SearchBar 
+          searchQuery={searchQuery} 
+          setSearchQuery={setSearchQuery} 
+          onSearch={handleSearch} 
+        />
+        {searchQuery.length > 0 && (
+          <FlatList
+            data={suggestions}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={renderItem} // renderItem fonksiyonunu burada kullan
+            style={styles.suggestionsContainer}
           />
         )}
-      </MapView>
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <SafeAreaView style={{ flex: 1, justifyContent: 'flex-end' }}>
-          <ModalContent />
-        </SafeAreaView>
-      </Modal>
+        <MapView
+            ref={mapRef}
+            provider={PROVIDER_GOOGLE}
+            style={styles.map}
+            initialRegion={region}
+            showsUserLocation={true}
+            onRegionChangeComplete={onRegionChangeComplete}
+            onPress={handleMapPress}
+          >
+          {selectedMarker && (
+            <Marker
+                coordinate={selectedMarker.coordinate}
+                onPress={() => handleMarkerPress(selectedMarker)}
+            >
+                <Icon name={selectedMarker.icon} size={30} color={selectedMarker.color} />
+            </Marker>
+          )}
+          {routeCoordinates.length > 0 && (
+            <Polyline
+              coordinates={routeCoordinates}
+              strokeWidth={2}
+              strokeColor="purple"
+            />
+          )}
+        </MapView>
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <SafeAreaView style={{ flex: 1, justifyContent: 'flex-end' }}>
+            <ModalContent />
+          </SafeAreaView>
+        </Modal>
 
-      <View style={styles.zoomContainer}>
-        <TouchableOpacity style={styles.zoomButton} onPress={() => zoomIn(mapRef, region, setRegion)}>
-          <Icon name="plus" size={24} color="black" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.zoomButton} onPress={() => zoomOut(mapRef, region, setRegion)}>
-          <Icon name="minus" size={24} color="black" />
-        </TouchableOpacity>
+        <View style={styles.zoomContainer}>
+          <TouchableOpacity style={styles.zoomButton} onPress={() => zoomIn(mapRef, region, setRegion)}>
+            <Icon name="plus" size={24} color="black" />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.zoomButton} onPress={() => zoomOut(mapRef, region, setRegion)}>
+            <Icon name="minus" size={24} color="black" />
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
+    </Fragment>
   );
 };
 
@@ -399,6 +504,23 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     justifyContent: 'flex-end',
     alignItems: 'center',
+  },
+  suggestionsContainer: {
+    position: 'absolute',
+    top: Platform.OS === 'ios' ? 81 : 53,
+    width: '100%', // Genişliği kontrol edin
+    maxHeight: 200, // Liste çok uzun olmasın diye maxHeight ekleyebilirsiniz
+    backgroundColor: 'white', // Arka plan rengini de görebilirsiniz
+    zIndex: 1000, // Eğer başka elementlerin arkasında kalıyorsa, zIndex ile öne çıkarabilirsiniz
+    backgroundColor: 'white', // Arka plan rengi
+    borderRadius: 20, // SearchBar ile aynı yuvarlaklık değeri
+    left: 10,
+  },
+  suggestionItem: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+    backgroundColor: 'white', // Arka plan rengi
   },
   modalView: {
     borderRadius: 20, // Köşeleri yuvarlaklaştır
