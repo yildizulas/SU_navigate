@@ -23,7 +23,7 @@ const MapScreen = ({ navigation }) => {
   const [selectedMarker, setSelectedMarker] = useState(null);
   const [visibleMarkers, setVisibleMarkers] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
-
+  const [showSuggestions, setShowSuggestions] = useState(true); // Yeni state öneri listesi görünürlüğü için
 
     // İlk useEffect hook'u, component yüklendiğinde konum izni isteyip, kullanıcının mevcut konumunu almak için.
   useEffect(() => {
@@ -63,6 +63,22 @@ const MapScreen = ({ navigation }) => {
     return () => clearTimeout(delayDebounce); // Cleanup fonksiyonu
   }, [searchQuery]); // searchQuery her değiştiğinde bu useEffect tetiklenecek
 
+  const handleSearchChange = (text) => {
+    setSearchQuery(text);
+    setShowSuggestions(true); // Arama çubuğu değiştiğinde önerileri göster
+    if (text.length > 0) {
+      // Otomatik tamamlama önerilerini hesapla ve güncelle
+    } else {
+      setSuggestions([]);
+    }
+  };
+
+    // Bir öneriye tıklandığında çalışacak fonksiyon
+    const handleSuggestionPress = (item) => {
+      setSearchQuery(item.match);
+      setShowSuggestions(false); // Öneriyi seçtikten sonra öneri listesini gizle
+      handleSearch(item);
+    };
 
   const handleMarkerPress = (marker) => {
     setSelectedMarker(marker);
@@ -101,10 +117,7 @@ const MapScreen = ({ navigation }) => {
 
   const renderItem = ({ item }) => {
     return (
-      <TouchableOpacity onPress={() => {
-        setSearchQuery(item.match);
-        handleSearch(item); // Pass the entire item with match and key
-      }}>
+      <TouchableOpacity onPress={() => handleSuggestionPress(item)}>
         <Text style={styles.suggestionItem}>{item.match}</Text>
       </TouchableOpacity>
     );
@@ -113,6 +126,8 @@ const MapScreen = ({ navigation }) => {
   const handleSearch = async (selectedSuggestion) => {
     const queryKey = selectedSuggestion.key;
     let selectedMarker = null;
+    setModalVisible(true);
+    setSuggestions([]); // Öneri listesini kapat
     
     // Check if the key is for a faculty member or a building and find the corresponding marker
     if (facultyMembers[queryKey]) {
@@ -293,7 +308,6 @@ const MapScreen = ({ navigation }) => {
       }
   };
 
-
   const ModalContent = () => {
     if (!selectedMarker) return null;
 
@@ -328,7 +342,7 @@ const MapScreen = ({ navigation }) => {
           style={styles.closeButton}
           onPress={() => setModalVisible(false)}
         >
-          <Text style={styles.closeButtonText}>Back</Text>
+          <Text style={styles.closeButtonText}>Close</Text>
         </TouchableOpacity>
         <Text style={styles.modalText}>{selectedMarker.description}</Text>
         <TouchableOpacity
@@ -353,15 +367,15 @@ const MapScreen = ({ navigation }) => {
     <Fragment>
       <View style={styles.container}>
         <SearchBar 
-          searchQuery={searchQuery} 
-          setSearchQuery={setSearchQuery} 
-          onSearch={handleSearch} 
+          searchQuery={searchQuery}
+          setSearchQuery={handleSearchChange}
+          onSearch={handleSearch}
         />
-        {searchQuery.length > 0 && (
+        {showSuggestions && searchQuery.length > 0 && (
           <FlatList
             data={suggestions}
             keyExtractor={(item, index) => index.toString()}
-            renderItem={renderItem} // renderItem fonksiyonunu burada kullan
+            renderItem={renderItem}
             style={styles.suggestionsContainer}
           />
         )}
