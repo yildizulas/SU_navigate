@@ -12,7 +12,7 @@ export const buildingDescriptions = {
   PiazzaKafe: "Piazza kafe",
   Starbucks: "Starbucks",
   KucukEv: "Küçük Ev",
-  OgrenciMerkezi: "UC\nUniversity Center\nÜniversite Merkezi",
+  UC: "UC\nUniversity Center\nÜniversite Merkezi",
   Coffy: "Coffy",
   PizzaBulls: "Pizza Bulls",
   Subway: "Subway",
@@ -87,7 +87,7 @@ export const facultyMembers = {
     building: "UC",
     room: "1083/1089"
   },
-  // ...diğer "OgrenciMerkezi" üyeleri
+  // ...diğer "UC" üyeleri
   "Emre Erol": {
     building: "FASS",
     room: "2022"
@@ -540,31 +540,30 @@ export const markers = {
       description: buildingDescriptions.KucukEv,
     }
   ],
-
-  OgrenciMerkezi: [
+  UC: [
     {
-      id: 'ogrencimerkezi_floor1_1',
-      name: 'ogrencimerkezi11',
+      id: 'uc_floor1_1',
+      name: 'uc11',
       coordinate: { latitude: 40.891539956951725, longitude: 29.38018908515629 },
       icon: 'home',
       color: '#0078D7',
-      description: buildingDescriptions.OgrenciMerkezi,
+      description: buildingDescriptions.UC,
     },
     {
-      id: 'ogrencimerkezi_floor1_2',
-      name: 'ogrencimerkezi12',
+      id: 'uc_floor1_2',
+      name: 'uc12',
       coordinate: { latitude: 40.89159641901652, longitude: 29.379908994369686 },
       icon: 'home',
       color: '#0078D7',
-      description: buildingDescriptions.OgrenciMerkezi,
+      description: buildingDescriptions.UC,
     },
     {
-      id: 'ogrencimerkezi_floorG_1',
-      name: 'ogrencimerkeziG1',
+      id: 'UC_floorG_1',
+      name: 'UCG1',
       coordinate: { latitude: 40.89107157416748, longitude: 29.37991918167079 },
       icon: 'home',
       color: '#0078D7',
-      description: buildingDescriptions.OgrenciMerkezi,
+      description: buildingDescriptions.UC,
     }
   ],
 

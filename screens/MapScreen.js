@@ -101,22 +101,26 @@ const MapScreen = ({ navigation }) => {
   
   const calculateSuggestions = (query) => {
     let matches = [];
-    const allKeys = [...Object.keys(buildingDescriptions), ...Object.keys(facultyMembers)];
+    // Binalar için eşleşmeleri bul
+    Object.keys(buildingDescriptions).forEach((key) => {
+      const description = buildingDescriptions[key].toLowerCase();
+      if (description.includes(query.toLowerCase())) {
+        matches.push({ match: description.split('\n')[0], key, type: 'building' });
+      }
+    });
   
-    allKeys.forEach(key => {
-      const description = buildingDescriptions[key] || facultyMembers[key] || '';
-      // Sadece description bir string ise işleme al
-      if (typeof description === 'string' && (
-        key.toLowerCase().startsWith(query.toLowerCase()) ||
-        description.toLowerCase().includes(query.toLowerCase())
-      )) {
-        const match = description.split('\n')[0]; // Açıklamanın ilk satırını al
-        matches.push(match);
+    // Öğretim üyeleri için eşleşmeleri bul
+    Object.keys(facultyMembers).forEach((name) => {
+      if (name.toLowerCase().includes(query.toLowerCase())) {
+        const facultyDetail = facultyMembers[name];
+        matches.push({ match: name, key: name, building: facultyDetail.building, type: 'faculty' });
       }
     });
   
     return matches;
   };
+  
+  
   
 
   const getSuggestionItemStyle = (index) => {
@@ -145,19 +149,16 @@ const MapScreen = ({ navigation }) => {
   };
 
   const renderItem = ({ item }) => {
-    // item, şimdi açıklama metni
     return (
       <TouchableOpacity onPress={() => {
-        setSearchQuery(item);
-        // Burada arama sonucu anahtar kelimeye çevrilip ona göre işlem yapılmalı
-        handleSearch(item); 
+        setSearchQuery(item.match);
+        handleSearch(item); // Pass the entire item with match and key
       }}>
-        <Text style={styles.suggestionItem}>{item}</Text>
+        <Text style={styles.suggestionItem}>{item.match}</Text>
       </TouchableOpacity>
     );
   };
   
-
   // Önerileri göstermek için FlatList component
   const renderSuggestions = () => {
     // Suggestion listesini göster
@@ -171,82 +172,57 @@ const MapScreen = ({ navigation }) => {
     ) : null;
   };
 
-  const similarityThreshold = 3;
-
-  const handleSearch = async (query) => {
-    const lowercasedQuery = query.toLowerCase().trim();
-    let foundFacultyMember = null;
-  
-    // Faculty members içinde arama yap
-    Object.entries(facultyMembers).forEach(([name, details]) => {
-      if (name.toLowerCase().includes(lowercasedQuery)) {
-        foundFacultyMember = { name, ...details };
-      }
-    });
-  
-    if (foundFacultyMember) {
-      // Hoca bulunduysa ilgili fakültenin marker'ına zoom yap ve modal içeriğini hazırla
-      const buildingMarker = markers[foundFacultyMember.building]?.[0];
+  const handleSearch = async (selectedSuggestion) => {
+    const queryKey = selectedSuggestion.key;
+    let selectedMarker = null;
+    
+    // Check if the key is for a faculty member or a building and find the corresponding marker
+    if (facultyMembers[queryKey]) {
+      const facultyDetail = facultyMembers[queryKey];
+      const buildingMarker = markers[facultyDetail.building]?.[0];
       if (buildingMarker) {
-        const markerWithDetails = {
+        selectedMarker = {
           ...buildingMarker,
-          title: foundFacultyMember.name,
-          description: `${foundFacultyMember.building} ${foundFacultyMember.room}`,
+          title: queryKey, // Faculty name
+          description: `${facultyDetail.building} ${facultyDetail.room}`,
           type: 'faculty'
         };
-        setSelectedMarker(markerWithDetails);
-  
-        // Haritada zoom yap ve modalı aç
-        const newRegion = {
-          ...region,
-          latitude: markerWithDetails.coordinate.latitude,
-          longitude: markerWithDetails.coordinate.longitude,
-          latitudeDelta: 0.002,
-          longitudeDelta: 0.002,
-        };
-        setRegion(newRegion); // Bunu ekleyin ki state güncellensin ve harita yeni region'a zoom yapsın
-        mapRef.current.animateToRegion(newRegion, 1000);
-        setModalVisible(true); // Modal'ı aç
-      } else {
-        console.log('No matching building marker found');
       }
-    } else {
-      // Eğer hoca bulunamazsa genel bina araması yap
-      let closestMarker = null;
-      let lowestDistance = Infinity;
-      Object.keys(markers).forEach(key => {
-        markers[key].forEach(marker => {
-          const distance = levenshteinDistance(marker.name.toLowerCase(), lowercasedQuery);
-          if (distance < lowestDistance && distance <= similarityThreshold) {
-            closestMarker = marker;
-            lowestDistance = distance;
-          }
-        });
-      });
-  
-      if (closestMarker) {
-        setSelectedMarker({
-          ...closestMarker,
-          type: 'building' // Bu tür, genel bina marker'ları için kullanılır
-        });
-      } else {
-        console.log('No matching marker found');
+    } else if (buildingDescriptions[queryKey]) {
+      const buildingMarker = markers[queryKey]?.[0];
+      if (buildingMarker) {
+        selectedMarker = {
+          ...buildingMarker,
+          description: buildingDescriptions[queryKey],
+          type: 'building'
+        };
       }
     }
   
-    // Seçilen marker varsa, ilgili bölgeye zoom yap ve modalı göster
+    // If a marker was found, animate to it and update the state accordingly
     if (selectedMarker) {
+      setSelectedMarker(selectedMarker);
       const newRegion = {
+        ...region,
         latitude: selectedMarker.coordinate.latitude,
         longitude: selectedMarker.coordinate.longitude,
         latitudeDelta: 0.002,
         longitudeDelta: 0.002,
       };
+      setRegion(newRegion); 
       mapRef.current.animateToRegion(newRegion, 1000);
       setModalVisible(true);
+    } else {
+      console.log('No matching marker found');
     }
   };
   
+    // When a suggestion is pressed, pass the entire suggestion object
+  const onSuggestionPress = (suggestion) => {
+    setSearchQuery(suggestion.match); // Optional: Update the search query in the UI
+    handleSearch(suggestion); // Trigger the search
+  };
+
   const handleGoPress = async () => {
     if (selectedMarker) {
         const currentLocation = await fetchCurrentLocation();
