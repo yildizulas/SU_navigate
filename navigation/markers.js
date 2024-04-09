@@ -97,14 +97,115 @@ export const facultyMembers = {
     room: "1013B"
   },
   // ...diğer "FASS" üyeleri
-  "Duygu Karaoğlan Altop": {
+  "Erkay Savaş": {
     building: "FENS",
-    room: "1083"
+    room: "2037"
+  },
+  "Hüsnü Yenigün": {
+    building: "FENS",
+    room: "2054"
+  },
+  "Selmiye Alkan Gürsel": {
+    building: "FENS",
+    room: "2045"
+  },
+  "Adnan Kefal": {
+    building: "FENS",
+    room: "G010"
   },
   "Albert Erkip": {
     building: "FENS",
     room: "2060"
   },
+  "Albert Levi": {
+    building: "FENS",
+    room: "1091"
+  },
+  "Alev Topuzoğlu": {
+    building: "FENS",
+    room: "2001"
+  },
+  "Alex Lyakhovich": {
+    building: "FENS",
+    room: "1043"
+  },
+  "Alhun Aydın": {
+    building: "FENS",
+    room: "G013"
+  },
+  "Ali Koşar": {
+    building: "FENS",
+    room: "1014"
+  },
+  "Ali Rana Atılgan": {
+    building: "FENS",
+    room: "2093"
+  },
+  "Alp Yürüm": {
+    building: "FENS",
+    room: "1031"
+  },
+  "": {
+    building: "FENS",
+    room: ""
+  },
+  "": {
+    building: "FENS",
+    room: ""
+  },
+  "": {
+    building: "FENS",
+    room: ""
+  },
+  "": {
+    building: "FENS",
+    room: ""
+  },
+  "": {
+    building: "FENS",
+    room: ""
+  },
+  "": {
+    building: "FENS",
+    room: ""
+  },
+  "": {
+    building: "FENS",
+    room: ""
+  },
+  "": {
+    building: "FENS",
+    room: ""
+  },
+  "": {
+    building: "FENS",
+    room: ""
+  },
+  "": {
+    building: "FENS",
+    room: ""
+  },
+  "": {
+    building: "FENS",
+    room: ""
+  },
+  "": {
+    building: "FENS",
+    room: ""
+  },
+  "": {
+    building: "FENS",
+    room: ""
+  },
+  "": {
+    building: "FENS",
+    room: ""
+  },
+  "": {
+    building: "FENS",
+    room: ""
+  },
+
   // ...diğer "FENS" üyeleri
   "Ali Nihat Eken": {
     building: "FMAN",
@@ -113,6 +214,26 @@ export const facultyMembers = {
   "Amy Kathleen Stopper": {
     building: "FMAN",
     room: "G104/G105"
+  },
+  "": {
+    building: "FMAN",
+    room: ""
+  },
+  "": {
+    building: "FMAN",
+    room: ""
+  },
+  "": {
+    building: "FMAN",
+    room: ""
+  },
+  "": {
+    building: "FMAN",
+    room: ""
+  },
+  "": {
+    building: "FMAN",
+    room: ""
   },
   // ...diğer "FMAN" üyeleri
   "Eylem Bütüner": {
@@ -124,389 +245,6 @@ export const facultyMembers = {
     room: "G013"
   },
   // ...diğer "SL" üyeleri
-};
-
-// buildings_older sadece deneme kullanmayınız!!!
-export const buildings_older = {
-  "OgrenciMerkezi": {
-    name: "UC",
-    rooms: [
-      {
-        roomNumber: "1083/1089",
-        occupant: "İnanç Arın"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "1083/1089",
-        occupant: "Marloes Cornelissen Aydemir"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "1083/1089",
-        occupant: "Matteo Paganin"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "1083/1089",
-        occupant: "Şirin Kaya"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "1083/1089",
-        occupant: "Emine Süphan Bakkal"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "1089",
-        occupant: "Yuki Kaneko"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "1083/1089",
-        occupant: "Aslıhan Ünsal"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "1089",
-        occupant: "Gamze Kuruk"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "",
-        occupant: ""
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "",
-        occupant: ""
-      }
-    ],
-  },
-  "FASS": {
-    name: "FASS",
-    rooms: [
-      {
-        roomNumber: "2022",
-        occupant: "Emre Erol"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "1013B",
-        occupant: "Ahmet Demirelli"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "2143",
-        occupant: "Mehmet Kuru"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "2021",
-        occupant: "Zeynep Nevin Yelçe"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "2038",
-        occupant: "Kelly Todd Brewer"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "2117",
-        occupant: "Ahu Antmen Akiska"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "1062",
-        occupant: "Ayşecan Terzioğlu"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "1053",
-        occupant: "Faik Kurtulmuş"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "1049",
-        occupant: "Gürol Irzık"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "1052",
-        occupant: "Nedim Nami Nomer"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "1033",
-        occupant: "Selçuk Akşin Somel"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "2025",
-        occupant: "Elif Yavnık"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "2142",
-        occupant: "Engin Kılıç"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "2125",
-        occupant: "Aslan Erdem"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "1057",
-        occupant: "Erhan Kıvanç"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "2129",
-        occupant: "Reyhan Tutumlu"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "2142",
-        occupant: "Seçil Sarıbayır"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "2124",
-        occupant: "Tamer Kütükçü"
-      }
-    ],
-  },
-
-  "FENS": {
-    name: "FENS",
-    rooms: [
-      {
-        roomNumber: "1083",
-        occupant: "Duygu Karaoğlan Altop"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "2060",
-        occupant: "Albert Erkip"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "G046",
-        occupant: "Burç Mısırlıoğlu"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "G018",
-        occupant: "Emrah Kalemci"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "2062",
-        occupant: "Ersin Göğüş"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "2009",
-        occupant: "Gözde İnce"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "2054",
-        occupant: "Hüsnü Yenigün"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "G054",
-        occupant: "İnanç Adagideli"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "1024",
-        occupant: "İsmet İnönü Kaya"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "2010",
-        occupant: "Kağan Kurşungöz"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "1038",
-        occupant: "Meltem Elitaş"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "1099",
-        occupant: "Mohammad Sadek"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "G051",
-        occupant: "Nihat Gökhan Göğüş"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "1016",
-        occupant: "Nilay Duruk Mutlubaş"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "1055",
-        occupant: "Ogün Adebali"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "2087",
-        occupant: "Zehra Sayers"
-      }
-    ],
-  },
-
-  "FMAN": {
-    name: "FMAN",
-    rooms: [
-      {
-        roomNumber: "G001",
-        occupant: "Ali Nihat Eken"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "G104/G105",
-        occupant: "Amy Kathleen Stopper"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "G097",
-        occupant: "Deniz Çiçekoğlu Daryavuz"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "G093/G094",
-        occupant: "Ekrem Sabit Şimşek"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "G104/G105",
-        occupant: "İlkem Kayıcan Dipcin"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "G104/G105",
-        occupant: "Kassandra Robertson"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "G093/G094",
-        occupant: "Okan Bölükbaş"
-      }
-    ],
-  },
-
-  "SL": {
-    name: "SL",
-    rooms: [
-      {
-        roomNumber: "G029",
-        occupant: "Eylem Bütüner"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "G013",
-        occupant: "Hatice Sarıgül Aydoğan"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "1041",
-        occupant: "Lukka Alp Akarçay"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "1045",
-        occupant: "Merve Karabulut Baykan"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "G029",
-        occupant: "Michael John Thomas"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "1005",
-        occupant: "Mona Tavakoli"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "G013",
-        occupant: "Naime Meltem Aygüneş"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "G004",
-        occupant: "Nazan Gelbal"
-      }
-    ],
-    rooms: [
-      {
-        roomNumber: "G004",
-        occupant: "Tuğba Yıldırım Kumbasar"
-      }
-    ],
-  },
-  // Add more buildings as needed
 };
 
 export const markers = {
