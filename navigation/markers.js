@@ -9,7 +9,7 @@ export const buildingDescriptions = {
   SUSAM: "SUSAM\nArt and Research Center\nSanat ve Araştırma Merkezi",
   EspressoLab: "EspressoLab",
   KopukluKafe: "Köpüklü Kafe",
-  PiazzaKafe: "Piazza kafe",
+  PiazzaKafe: "Piazza Kafe",
   Starbucks: "Starbucks",
   KucukEv: "Küçük Ev",
   UC: "UC\nUniversity Center\nÜniversite Merkezi",
