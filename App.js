@@ -5,6 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 // Genel MapScreen sayfasını import edin
 import MapScreen from './screens/MapScreen';
 import FloorPlanScreen from './screens/FloorPlanScreen';
+import FloorPlanScreenSVG from './screens/FloorPlanScreenSVG';
 
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
@@ -21,6 +22,11 @@ export default function App() {
         <Stack.Screen 
           name="FloorPlan" 
           component={FloorPlanScreen} 
+          options={{ title: 'Kat Planı' }}
+        />
+        <Stack.Screen 
+          name="FloorPlanSVG" 
+          component={FloorPlanScreenSVG} 
           options={{ title: 'Kat Planı' }}
         />
       </Stack.Navigator>

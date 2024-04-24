@@ -8,6 +8,7 @@ import { zoomIn, zoomOut } from '../navigation/ZoomControls';
 import * as Location from 'expo-location';
 import polyline from '@mapbox/polyline';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { ViewPropTypes } from 'deprecated-react-native-prop-types';
 
 const MapScreen = ({ navigation }) => {
   const mapRef = useRef(null);
