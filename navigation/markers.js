@@ -1216,8 +1216,6 @@ export const markers = {
     }
   ], 
 
-  
-
 };
 
 export default markers;
