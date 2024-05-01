@@ -11,6 +11,18 @@
 <g transform="matrix(Infinity NaN NaN Infinity 0 0)" id="c6e1fb23-4f8f-4634-9193-b2dc8c5a20c0"  >
 </g>
 <g transform="matrix(0.45 0 0 0.45 500 500)"  >
+
+<text id="room1040" x="20" y="40" font-family="Arial" font-size="24" fill="blue" cursor="pointer">1040</text>
+<script type="text/ecmascript">
+<![CDATA[
+  document.getElementById('room1040').addEventListener('touchstart', function() {
+    alert('Room 1040 selected');
+  }, false);
+  document.getElementById('room1040').addEventListener('click', function() {
+    alert('Room 1040 selected');
+  }, false);
+]]>
+</script>
 <g style="" vector-effect="non-scaling-stroke"   >
 		<g transform="matrix(0.13 0 0 0.13 -851.93 855.46)" style=""  >
 		<text xml:space="preserve" font-family="serif" font-size="2000" font-style="italic" font-weight="normal" style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(255,0,0); fill-rule: nonzero; opacity: 1; white-space: pre;" ><tspan x="-145.53" y="12.57" >ULAŞ ERDEM!</tspan></text>
