@@ -5,7 +5,7 @@ import { Asset } from 'expo-asset';
 import * as FileSystem from 'expo-file-system';
 
 const FloorPlanScreenSVG = () => {
-  const [base64SVG, setBase64SVG] = useState('');
+  const [svgContent, setSvgContent] = useState('');
 
   useEffect(() => {
     loadSvgFile();
@@ -14,27 +14,73 @@ const FloorPlanScreenSVG = () => {
   const loadSvgFile = async () => {
     const asset = Asset.fromModule(require('../assets/floors/FENS/fens_floor1_1.svg'));
     await asset.downloadAsync();
-    const svgContent = await FileSystem.readAsStringAsync(asset.localUri, { encoding: FileSystem.EncodingType.Base64 });
-    const svgDataUri = `data:image/svg+xml;base64,${svgContent}`;
-    setBase64SVG(svgDataUri);
+    let content = await FileSystem.readAsStringAsync(asset.localUri);
+    // Oda ve kapı görselini ekleyin
+    const roomElement = `<text x="160" y="225" font-family="Arial" font-size="15" fill="blue" id="room1040" cursor="pointer">1040</text>`;
+    const doorRect = `<rect x="820" y="650" width="50" height="20" fill="green" />`;
+    // Navigasyon yolu çizgisi
+    const path = `<path d="M820,670 L180,240" stroke="red" stroke-width="5"/>`;
+    content = content.replace('</svg>', `${roomElement}${doorRect}${path}</svg>`);
+    setSvgContent(content);
   };
 
   const injectedJavaScript = `
     document.addEventListener('click', function(e) {
-      e.preventDefault(); // Prevent default click behavior
-      const coords = { x: e.pageX, y: e.pageY };
-      window.ReactNativeWebView.postMessage(JSON.stringify(coords));
+      e.preventDefault();
+      const target = e.target;
+      if (target.id === 'room1040') {
+        const roomInfo = { roomNumber: '1040', description: 'Navigating from entrance to Room 1040.' };
+        window.ReactNativeWebView.postMessage(JSON.stringify(roomInfo));
+      }
     });
+  `;
+
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta name="viewport" content="width=device-width, initial-scale=2.5, maximum-scale=3.0, user-scalable=yes" />
+      <style>
+        body, html {
+          margin: 0;
+          padding: 0;
+          overflow: hidden;
+          height: 100%;
+          width: 100%;
+        }
+        #container {
+          overflow: scroll;
+          width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+        svg {
+          width: 100%;
+          height: auto;
+        }
+      </style>
+    </head>
+    <body>
+      <div id="container">
+        ${svgContent}
+      </div>
+    </body>
+    </html>
   `;
 
   return (
     <SafeAreaView style={styles.container}>
       <WebView
         originWhitelist={['*']}
-        source={{ html: `<img src="${base64SVG}" style="width: 100%; height: auto;" />` }}  // Düzeltme burada yapıldı
+        source={{ html: htmlContent }}
         style={styles.webView}
         injectedJavaScript={injectedJavaScript}
-        onMessage={(event) => console.log(event.nativeEvent.data)}
+        onMessage={(event) => {
+          const data = JSON.parse(event.nativeEvent.data);
+          alert(data.description);
+        }}
       />
     </SafeAreaView>
   );
