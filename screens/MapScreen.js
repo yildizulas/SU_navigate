@@ -400,8 +400,8 @@ const MapScreen = ({ navigation }) => {
           {routeCoordinates.length > 0 && (
             <Polyline
               coordinates={routeCoordinates}
-              strokeWidth={2}
-              strokeColor="purple"
+              strokeWidth={7}
+              strokeColor="blue"
             />
           )}
         </MapView>
