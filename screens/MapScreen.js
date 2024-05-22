@@ -18,15 +18,16 @@ const MapScreen = ({ navigation }) => {
     latitudeDelta: 0.006,
     longitudeDelta: 0.006,
   });
+
+  const [offices, setOffices] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [routeCoordinates, setRouteCoordinates] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedMarker, setSelectedMarker] = useState(null);
   const [visibleMarkers, setVisibleMarkers] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
-  const [showSuggestions, setShowSuggestions] = useState(true); // Yeni state öneri listesi görünürlüğü için
+  const [showSuggestions, setShowSuggestions] = useState(true);
 
-    // İlk useEffect hook'u, component yüklendiğinde konum izni isteyip, kullanıcının mevcut konumunu almak için.
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -45,28 +46,26 @@ const MapScreen = ({ navigation }) => {
     })();
   }, []);
 
-  // İkinci useEffect hook'u, arama sorgusunda her değişiklik olduğunda otomatik tamamlama önerilerini güncellemek için.
   useEffect(() => {
-    // Otomatik tamamlama önerilerini hesaplayan fonksiyonu çağır
     const updateSuggestions = async () => {
       if (searchQuery.trim() === '') {
         setSuggestions([]);
       } else {
-        const newSuggestions = calculateSuggestions(searchQuery).slice(0, 5); // En yakın 5 sonucu al
+        const newSuggestions = calculateSuggestions(searchQuery).slice(0, 5);
         setSuggestions(newSuggestions);
       }
     };
 
     const delayDebounce = setTimeout(() => {
       updateSuggestions();
-    }, 500); // Kullanıcı yazmayı durdurduktan sonra 0.5 saniye bekleyip önerileri güncelle
+    }, 500);
 
-    return () => clearTimeout(delayDebounce); // Cleanup fonksiyonu
-  }, [searchQuery]); // searchQuery her değiştiğinde bu useEffect tetiklenecek
+    return () => clearTimeout(delayDebounce);
+  }, [searchQuery]);
 
   const handleSearchChange = (text) => {
     setSearchQuery(text);
-    setShowSuggestions(true); // Arama çubuğu değiştiğinde önerileri göster
+    setShowSuggestions(true);
     if (text.length > 0) {
       // Otomatik tamamlama önerilerini hesapla ve güncelle
     } else {
@@ -74,29 +73,27 @@ const MapScreen = ({ navigation }) => {
     }
   };
 
-    // Bir öneriye tıklandığında çalışacak fonksiyon
-    const handleSuggestionPress = (item) => {
-      setSearchQuery(item.match);
-      setShowSuggestions(false); // Öneriyi seçtikten sonra öneri listesini gizle
-      handleSearch(item);
-    };
+  const handleSuggestionPress = (item) => {
+    setSearchQuery(item.match);
+    setShowSuggestions(false);
+    handleSearch(item);
+  };
 
   const handleMarkerPress = (marker) => {
     setSelectedMarker(marker);
     setModalVisible(true);
 
     const markerRegion = {
-        latitude: marker.coordinate.latitude,
-        longitude: marker.coordinate.longitude,
-        latitudeDelta: region.latitudeDelta,
-        longitudeDelta: region.longitudeDelta,
+      latitude: marker.coordinate.latitude,
+      longitude: marker.coordinate.longitude,
+      latitudeDelta: region.latitudeDelta,
+      longitudeDelta: region.longitudeDelta,
     };
     mapRef.current.animateToRegion(markerRegion, 1000);
   };
-  
+
   const calculateSuggestions = (query) => {
     let matches = [];
-    // Binalar ve açıklamaları için eşleşmeleri bul
     Object.keys(buildingDescriptions).forEach((key) => {
       const descriptionLines = buildingDescriptions[key].split('\n');
       const matchedLine = descriptionLines.find(line => line.toLowerCase().includes(query.toLowerCase()));
@@ -104,15 +101,14 @@ const MapScreen = ({ navigation }) => {
         matches.push({ match: matchedLine, key, type: 'building' });
       }
     });
-  
-    // Öğretim üyeleri için eşleşmeleri bul
+
     Object.keys(facultyMembers).forEach((name) => {
       if (name.toLowerCase().includes(query.toLowerCase())) {
         const facultyDetail = facultyMembers[name];
         matches.push({ match: name, key: name, building: facultyDetail.building, type: 'faculty' });
       }
     });
-  
+
     return matches;
   };
 
@@ -128,16 +124,15 @@ const MapScreen = ({ navigation }) => {
     const queryKey = selectedSuggestion.key;
     let selectedMarker = null;
     setModalVisible(true);
-    setSuggestions([]); // Öneri listesini kapat
-    
-    // Check if the key is for a faculty member or a building and find the corresponding marker
+    setSuggestions([]);
+
     if (facultyMembers[queryKey]) {
       const facultyDetail = facultyMembers[queryKey];
       const buildingMarker = markers[facultyDetail.building]?.[0];
       if (buildingMarker) {
         selectedMarker = {
           ...buildingMarker,
-          title: queryKey, // Faculty name
+          title: queryKey,
           description: `${facultyDetail.building} ${facultyDetail.room}`,
           type: 'faculty'
         };
@@ -152,8 +147,7 @@ const MapScreen = ({ navigation }) => {
         };
       }
     }
-  
-    // If a marker was found, animate to it and update the state accordingly
+
     if (selectedMarker) {
       setSelectedMarker(selectedMarker);
       const newRegion = {
@@ -163,7 +157,7 @@ const MapScreen = ({ navigation }) => {
         latitudeDelta: 0.002,
         longitudeDelta: 0.002,
       };
-      setRegion(newRegion); 
+      setRegion(newRegion);
       mapRef.current.animateToRegion(newRegion, 1000);
       setModalVisible(true);
     } else {
@@ -173,59 +167,54 @@ const MapScreen = ({ navigation }) => {
 
   const handleGoPress = async () => {
     if (selectedMarker) {
-        const currentLocation = await fetchCurrentLocation();
-        await fetchRouteData(currentLocation, selectedMarker.coordinate);
+      const currentLocation = await fetchCurrentLocation();
+      await fetchRouteData(currentLocation, selectedMarker.coordinate);
 
-        // Ensure we have the route coordinates available to calculate the bounds
-        if (routeCoordinates.length > 0) {
-            const maxLat = Math.max(currentLocation.latitude, selectedMarker.coordinate.latitude);
-            const minLat = Math.min(currentLocation.latitude, selectedMarker.coordinate.latitude);
-            const maxLng = Math.max(currentLocation.longitude, selectedMarker.coordinate.longitude);
-            const minLng = Math.min(currentLocation.longitude, selectedMarker.coordinate.longitude);
+      if (routeCoordinates.length > 0) {
+        const maxLat = Math.max(currentLocation.latitude, selectedMarker.coordinate.latitude);
+        const minLat = Math.min(currentLocation.latitude, selectedMarker.coordinate.latitude);
+        const maxLng = Math.max(currentLocation.longitude, selectedMarker.coordinate.longitude);
+        const minLng = Math.min(currentLocation.longitude, selectedMarker.coordinate.longitude);
 
-            // Calculate the center of the map view
-            const centerLat = (maxLat + minLat) / 2;
-            const centerLng = (maxLng + minLng) / 2;
+        const centerLat = (maxLat + minLat) / 2;
+        const centerLng = (maxLng + minLng) / 2;
 
-            // Calculate the deltas with a reasonable padding to ensure both locations are visible
-            const latitudeDelta = Math.abs(maxLat - minLat) * 1.5; // Increase multiplier for more padding if needed
-            const longitudeDelta = Math.abs(maxLng - minLng) * 1.5; // Increase multiplier for more padding if needed
+        const latitudeDelta = Math.abs(maxLat - minLat) * 1.5;
+        const longitudeDelta = Math.abs(maxLng - minLng) * 1.5;
 
-            const newRegion = {
-                latitude: centerLat,
-                longitude: centerLng,
-                latitudeDelta,
-                longitudeDelta,
-            };
+        const newRegion = {
+          latitude: centerLat,
+          longitude: centerLng,
+          latitudeDelta,
+          longitudeDelta,
+        };
 
-            mapRef.current.animateToRegion(newRegion, 1000); // Smoothly animate to the new region
-        }
+        mapRef.current.animateToRegion(newRegion, 1000);
+      }
 
-        setModalVisible(false); // Optionally close the modal if needed
+      setModalVisible(false);
     } else {
-        console.log('No marker selected');
+      console.log('No marker selected');
     }
   };
 
-  // İki konum arasındaki mesafeyi hesaplayan fonksiyon
   const getDistance = (location1, location2) => {
     const toRadians = (deg) => deg * Math.PI / 180;
-    const R = 6378137; // Earth’s mean radius in meter
+    const R = 6378137;
     const dLat = toRadians(location2.latitude - location1.latitude);
     const dLong = toRadians(location2.longitude - location1.longitude);
     const lat1 = toRadians(location1.latitude);
     const lat2 = toRadians(location2.latitude);
 
     const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-              Math.sin(dLong / 2) * Math.sin(dLong / 2) * Math.cos(lat1) * Math.cos(lat2);
+      Math.sin(dLong / 2) * Math.sin(dLong / 2) * Math.cos(lat1) * Math.cos(lat2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c; // returns the distance in meter
+    return R * c;
   };
 
   const onRegionChangeComplete = (newRegion) => {
     setRegion(newRegion);
 
-    // Belirli bir zoom seviyesinden sonra marker'ları göster
     if (newRegion.latitudeDelta < 0.002 && newRegion.longitudeDelta < 0.004) {
       setVisibleMarkers(markers);
     } else {
@@ -234,8 +223,8 @@ const MapScreen = ({ navigation }) => {
   };
 
   const fetchRouteData = async (startCoord, endCoord) => {
-    const apiKey = 'AIzaSyBAJ6oNyIj-NLw95eFfGakiVy3mzOjE1_4'; // Replace this with your actual Google API key
-    const mode = 'walking'; // You can change this to 'walking', 'bicycling' or 'transit'
+    const apiKey = 'AIzaSyBAJ6oNyIj-NLw95eFfGakiVy3mzOjE1_4';
+    const mode = 'walking';
     const origin = `${startCoord.latitude},${startCoord.longitude}`;
     const destination = `${endCoord.latitude},${endCoord.longitude}`;
     const directionsUrl = `https://maps.googleapis.com/maps/api/directions/json?origin=${origin}&destination=${destination}&mode=${mode}&key=${apiKey}`;
@@ -243,13 +232,10 @@ const MapScreen = ({ navigation }) => {
     try {
       const response = await fetch(directionsUrl);
       const json = await response.json();
-      //console.log(json);
-      //console.log("\n");
       if (json.routes.length) {
         const points = json.routes[0].overview_polyline.points;
-        const steps = decodePolyline(points); // Function to decode polyline
+        const steps = decodePolyline(points);
         setRouteCoordinates(steps);
-        console.log("route destination completed.");
       } else {
         setRouteCoordinates([]);
         console.log('No routes found.');
@@ -274,39 +260,39 @@ const MapScreen = ({ navigation }) => {
     };
   };
 
-  const MAX_DISTANCE = 150; // 150 metre çapı olarak belirledik
+  const MAX_DISTANCE = 150;
 
   const handleMapPress = async (e) => {
-      const clickedLocation = e.nativeEvent.coordinate;
-      let closestMarker = null;
-      let shortestDistance = Infinity;
+    const clickedLocation = e.nativeEvent.coordinate;
+    let closestMarker = null;
+    let shortestDistance = Infinity;
 
-      Object.keys(markers).forEach(category => {
-          markers[category].forEach(marker => {
-              const distance = getDistance(clickedLocation, marker.coordinate);
-              if (distance < shortestDistance && distance <= MAX_DISTANCE) {
-                  shortestDistance = distance;
-                  closestMarker = marker;
-              }
-          });
+    Object.keys(markers).forEach(category => {
+      markers[category].forEach(marker => {
+        const distance = getDistance(clickedLocation, marker.coordinate);
+        if (distance < shortestDistance && distance <= MAX_DISTANCE) {
+          shortestDistance = distance;
+          closestMarker = marker;
+        }
       });
+    });
 
-      if (closestMarker) {
-          setSelectedMarker(closestMarker);
-          setModalVisible(true);
+    if (closestMarker) {
+      setSelectedMarker(closestMarker);
+      setModalVisible(true);
 
-          const newRegion = {
-              latitude: closestMarker.coordinate.latitude,
-              longitude: closestMarker.coordinate.longitude,
-              latitudeDelta: region.latitudeDelta,
-              longitudeDelta: region.longitudeDelta,
-          };
-          mapRef.current.animateToRegion(newRegion, 1000);
-      } else {
-          console.log('No nearby marker found');
-          setModalVisible(false);
-          setSelectedMarker(null);
-      }
+      const newRegion = {
+        latitude: closestMarker.coordinate.latitude,
+        longitude: closestMarker.coordinate.longitude,
+        latitudeDelta: region.latitudeDelta,
+        longitudeDelta: region.longitudeDelta,
+      };
+      mapRef.current.animateToRegion(newRegion, 1000);
+    } else {
+      console.log('No nearby marker found');
+      setModalVisible(false);
+      setSelectedMarker(null);
+    }
   };
 
   const ModalContent = () => {
@@ -319,24 +305,22 @@ const MapScreen = ({ navigation }) => {
       </TouchableOpacity>
     );
 
-  // Eğer seçilen marker bir faculty member ise özel içeriği göster
-  if (selectedMarker.type === 'faculty') {
-    return (
-      <View style={styles.modalView}>
-        <TouchableOpacity
-          style={styles.closeButton}
-          onPress={() => setModalVisible(false)}
-        >
-          <Text style={styles.closeButtonText}>Close</Text>
-        </TouchableOpacity>
-        <Text style={styles.modalText}>{selectedMarker.title}</Text>
-        <Text style={styles.modalText}>{selectedMarker.description}</Text>
-        {/* Render the goButton if the selectedMarker is a faculty member */}
-        {selectedMarker.type === 'faculty' && goButton}
-      </View>
-    );
-  }
-    
+    if (selectedMarker.type === 'faculty') {
+      return (
+        <View style={styles.modalView}>
+          <TouchableOpacity
+            style={styles.closeButton}
+            onPress={() => setModalVisible(false)}
+          >
+            <Text style={styles.closeButtonText}>Close</Text>
+          </TouchableOpacity>
+          <Text style={styles.modalText}>{selectedMarker.title}</Text>
+          <Text style={styles.modalText}>{selectedMarker.description}</Text>
+          {selectedMarker.type === 'faculty' && goButton}
+        </View>
+      );
+    }
+
     return (
       <View style={styles.modalView}>
         <TouchableOpacity
@@ -350,7 +334,7 @@ const MapScreen = ({ navigation }) => {
           style={styles.button}
           onPress={() => {
             setModalVisible(false);
-            navigation.navigate('FloorPlanSVG', { marker: selectedMarker });
+            navigation.navigate('FloorPlan', { marker: selectedMarker });
           }}
         >
           <Icon name="university" size={24} color="white" />
@@ -364,10 +348,35 @@ const MapScreen = ({ navigation }) => {
     );
   };
 
+  const goToCurrentLocation = async () => {
+    console.log("Attempting to fetch current location...");
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+      console.log('Permission to access location was denied');
+      return;
+    }
+
+    try {
+      let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
+      console.log("Current location fetched:", location);
+
+      const newRegion = {
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+        latitudeDelta: 0.006,
+        longitudeDelta: 0.006,
+      };
+
+      mapRef.current.animateToRegion(newRegion, 1000);
+    } catch (error) {
+      console.error("Error fetching current location:", error);
+    }
+  };
+
   return (
     <Fragment>
       <View style={styles.container}>
-        <SearchBar 
+        <SearchBar
           searchQuery={searchQuery}
           setSearchQuery={handleSearchChange}
           onSearch={handleSearch}
@@ -381,27 +390,27 @@ const MapScreen = ({ navigation }) => {
           />
         )}
         <MapView
-            ref={mapRef}
-            provider={PROVIDER_GOOGLE}
-            style={styles.map}
-            initialRegion={region}
-            showsUserLocation={true}
-            onRegionChangeComplete={onRegionChangeComplete}
-            onPress={handleMapPress}
-          >
+          ref={mapRef}
+          provider={PROVIDER_GOOGLE}
+          style={styles.map}
+          initialRegion={region}
+          showsUserLocation={true}
+          onRegionChangeComplete={onRegionChangeComplete}
+          onPress={handleMapPress}
+        >
           {selectedMarker && (
             <Marker
-                coordinate={selectedMarker.coordinate}
-                onPress={() => handleMarkerPress(selectedMarker)}
+              coordinate={selectedMarker.coordinate}
+              onPress={() => handleMarkerPress(selectedMarker)}
             >
-                <Icon name={selectedMarker.icon} size={30} color={selectedMarker.color} />
+              <Icon name={selectedMarker.icon} size={30} color={selectedMarker.color} />
             </Marker>
           )}
           {routeCoordinates.length > 0 && (
             <Polyline
               coordinates={routeCoordinates}
-              strokeWidth={7}
-              strokeColor="blue"
+              strokeWidth={1}
+              strokeColor="red"
             />
           )}
         </MapView>
@@ -424,6 +433,11 @@ const MapScreen = ({ navigation }) => {
             <Icon name="minus" size={24} color="black" />
           </TouchableOpacity>
         </View>
+        {Platform.OS === 'ios' && (
+          <TouchableOpacity style={styles.myLocationButton} onPress={goToCurrentLocation}>
+            <Icon name="crosshairs" size={24} color="black" />
+          </TouchableOpacity>
+        )}
       </View>
     </Fragment>
   );
@@ -438,68 +452,66 @@ const styles = StyleSheet.create({
   suggestionsContainer: {
     position: 'absolute',
     top: Platform.OS === 'ios' ? 81 : 53,
-    width: '100%', // Genişliği kontrol edin
-    maxHeight: 200, // Liste çok uzun olmasın diye maxHeight ekleyebilirsiniz
-    backgroundColor: 'white', // Arka plan rengini de görebilirsiniz
-    zIndex: 1000, // Eğer başka elementlerin arkasında kalıyorsa, zIndex ile öne çıkarabilirsiniz
-    backgroundColor: 'white', // Arka plan rengi
-    borderRadius: 20, // SearchBar ile aynı yuvarlaklık değeri
+    width: '100%',
+    maxHeight: 200,
+    backgroundColor: 'white',
+    zIndex: 1000,
+    borderRadius: 20,
     left: 10,
   },
   suggestionItem: {
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
-    backgroundColor: 'white', // Arka plan rengi
+    backgroundColor: 'white',
   },
   modalView: {
-    borderRadius: 20, // Köşeleri yuvarlaklaştır
+    borderRadius: 20,
     padding: 35,
     alignItems: "center",
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
-      height: 2
+      height: 2,
     },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
-    width: '90%', // Modalın genişliğini azalt
-    alignSelf: 'center', // Merkezileştir
+    width: '90%',
+    alignSelf: 'center',
     borderWidth: 1,
-    borderColor: '#ddd', // Add a border to the modal
-    backgroundColor: "#f9f9f9", // Light background for the modal content
+    borderColor: '#ddd',
+    backgroundColor: "#f9f9f9",
   },
   modalText: {
-    fontSize: 16, // Yazı tipi boyutunu artır
-    fontWeight: "bold", // Yazı tipi kalınlığını artır
+    fontSize: 16,
+    fontWeight: "bold",
     textAlign: "center",
     marginBottom: 15,
-    paddingBottom: 10, // Add padding at the bottom
+    paddingBottom: 10,
     borderBottomWidth: 1,
-    borderColor: '#ddd', // Add a separator
+    borderColor: '#ddd',
   },
   button: {
     borderRadius: 20,
     padding: 10,
     elevation: 2,
-    flexDirection: 'row', // İçerikleri yatay olarak hizala
-    alignItems: 'center', // İçerikleri dikey olarak ortala
-    justifyContent: 'center', // İçerikleri yatay olarak ortala
-    // Butonun diğer stil tanımlamaları
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: "#2196F3",
     marginBottom: 10,
-    marginTop: 15, // Add margin at the top
+    marginTop: 15,
   },
   textStyle: {
     color: "white",
     fontWeight: "bold",
     textAlign: "center",
-    marginLeft: 8, // İcon ile yazı arasında boşluk bırak
+    marginLeft: 8,
   },
   buttonIcon: {
-    fontSize: 20, // İcon boyutu
-    color: "white", // İcon rengi
+    fontSize: 20,
+    color: "white",
   },
   zoomButton: {
     backgroundColor: 'white',
@@ -533,7 +545,7 @@ const styles = StyleSheet.create({
   },
   closeButtonText: {
     fontSize: 18,
-    color: '#007AFF', // iOS geri butonu rengi
+    color: '#007AFF',
   },
   textInput: {
     height: 40,
@@ -543,6 +555,18 @@ const styles = StyleSheet.create({
     padding: 10,
     marginVertical: 10,
     width: '100%',
+  },
+  myLocationButton: {
+    position: 'absolute',
+    left: 20,
+    bottom: 20,
+    backgroundColor: 'white',
+    padding: 10,
+    borderRadius: 20,
+    elevation: 2,
+    shadowOpacity: 0.25,
+    shadowRadius: 5,
+    shadowOffset: { height: 1, width: 1 },
   },
 });
 
