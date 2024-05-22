@@ -14,29 +14,7 @@
 
 
 
-<text id="room1039" x="-765" y="-525" font-family="Arial" font-size="24" fill="blue" cursor="pointer">1039</text>
-<script type="text/ecmascript">
-<![CDATA[
-  document.getElementById('room1039').addEventListener('touchstart', function() {
-    alert('Room 1039 selected');
-  }, false);
-  document.getElementById('room1039').addEventListener('click', function() {
-    alert('Room 1039 selected');
-  }, false);
-]]>
-</script>
 
-<text id="room1038" x="-765" y="-455" font-family="Arial" font-size="24" fill="blue" cursor="pointer">1038</text>
-<script type="text/ecmascript">
-<![CDATA[
-  document.getElementById('room1038').addEventListener('touchstart', function() {
-    alert('Room 1038 selected');
-  }, false);
-  document.getElementById('room1038').addEventListener('click', function() {
-    alert('Room 1038 selected');
-  }, false);
-]]>
-</script>
 
 <g style="" vector-effect="non-scaling-stroke"   >
 		<g transform="matrix(0.13 0 0 0.13 -851.93 855.46)" style=""  >
