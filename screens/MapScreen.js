@@ -334,7 +334,7 @@ const MapScreen = ({ navigation }) => {
           style={styles.button}
           onPress={() => {
             setModalVisible(false);
-            navigation.navigate('FloorPlan', { marker: selectedMarker });
+            navigation.navigate('FloorPlanSVG', { marker: selectedMarker });
           }}
         >
           <Icon name="university" size={24} color="white" />

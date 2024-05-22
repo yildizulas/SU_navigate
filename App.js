@@ -26,11 +26,6 @@ const App = () => {
         options={{ title: 'Kampüs Haritası' }} 
         />
         <Stack.Screen 
-          name="FloorPlan" 
-          component={FloorPlanScreen} 
-          options={{ title: 'Kat Planı' }}
-        />
-        <Stack.Screen 
           name="FloorPlanSVG" 
           component={FloorPlanScreenSVG} 
           options={{ title: 'Kat Planı SVG' }}
