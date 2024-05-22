@@ -1,4 +1,7 @@
 // markers.js
+import { fetchFacultyMembers } from '../Api/main.js';
+
+
 export const buildingDescriptions = {
   FENS: "FENS\nFaculty of Engineering and Natural Sciences\nMühendislik ve Doğa Bilimleri Fakültesi",
   FMAN: "FMAN\nFaculty of Management\nYönetim Bilimleri Fakültesi",
@@ -75,176 +78,8 @@ export const buildings = {
 };
 
 export const facultyMembers = {
-  "İnanç Arın": {
-    building: "UC",
-    room: "1083/1089"
-  },
-  "Marloes Cornelissen Aydemir": {
-    building: "UC",
-    room: "1083/1089"
-  },
-  "Matteo Paganin": {
-    building: "UC",
-    room: "1083/1089"
-  },
-  // ...diğer "UC" üyeleri
-  "Emre Erol": {
-    building: "FASS",
-    room: "2022"
-  },
-  "Ahmet Demirelli": {
-    building: "FASS",
-    room: "1013B"
-  },
-  // ...diğer "FASS" üyeleri
-  "Erkay Savaş": {
-    building: "FENS",
-    room: "2037"
-  },
-  "Hüsnü Yenigün": {
-    building: "FENS",
-    room: "2054"
-  },
-  "Selmiye Alkan Gürsel": {
-    building: "FENS",
-    room: "2045"
-  },
-  "Adnan Kefal": {
-    building: "FENS",
-    room: "G010"
-  },
-  "Albert Erkip": {
-    building: "FENS",
-    room: "2060"
-  },
-  "Albert Levi": {
-    building: "FENS",
-    room: "1091"
-  },
-  "Alev Topuzoğlu": {
-    building: "FENS",
-    room: "2001"
-  },
-  "Alex Lyakhovich": {
-    building: "FENS",
-    room: "1043"
-  },
-  "Alhun Aydın": {
-    building: "FENS",
-    room: "G013"
-  },
-  "Ali Koşar": {
-    building: "FENS",
-    room: "1014"
-  },
-  "Ali Rana Atılgan": {
-    building: "FENS",
-    room: "2093"
-  },
-  "Alp Yürüm": {
-    building: "FENS",
-    room: "1031"
-  },
-  "": {
-    building: "FENS",
-    room: ""
-  },
-  "": {
-    building: "FENS",
-    room: ""
-  },
-  "": {
-    building: "FENS",
-    room: ""
-  },
-  "": {
-    building: "FENS",
-    room: ""
-  },
-  "": {
-    building: "FENS",
-    room: ""
-  },
-  "": {
-    building: "FENS",
-    room: ""
-  },
-  "": {
-    building: "FENS",
-    room: ""
-  },
-  "": {
-    building: "FENS",
-    room: ""
-  },
-  "": {
-    building: "FENS",
-    room: ""
-  },
-  "": {
-    building: "FENS",
-    room: ""
-  },
-  "": {
-    building: "FENS",
-    room: ""
-  },
-  "": {
-    building: "FENS",
-    room: ""
-  },
-  "": {
-    building: "FENS",
-    room: ""
-  },
-  "": {
-    building: "FENS",
-    room: ""
-  },
-  "": {
-    building: "FENS",
-    room: ""
-  },
+  
 
-  // ...diğer "FENS" üyeleri
-  "Ali Nihat Eken": {
-    building: "FMAN",
-    room: "G001"
-  },
-  "Amy Kathleen Stopper": {
-    building: "FMAN",
-    room: "G104/G105"
-  },
-  "": {
-    building: "FMAN",
-    room: ""
-  },
-  "": {
-    building: "FMAN",
-    room: ""
-  },
-  "": {
-    building: "FMAN",
-    room: ""
-  },
-  "": {
-    building: "FMAN",
-    room: ""
-  },
-  "": {
-    building: "FMAN",
-    room: ""
-  },
-  // ...diğer "FMAN" üyeleri
-  "Eylem Bütüner": {
-    building: "SL",
-    room: "G029"
-  },
-  "Hatice Sarıgül Aydoğan": {
-    building: "SL",
-    room: "G013"
-  },
-  // ...diğer "SL" üyeleri
 };
 
 export const markers = {
@@ -1217,5 +1052,30 @@ export const markers = {
   ], 
 
 };
+
+export async function updateFacultyMembersData() {
+  try {
+    const facultyData = await fetchFacultyMembers(); // Fetching the new faculty data
+    
+ 
+    // Populating the facultyMembers object with new data
+    Object.entries(facultyData).forEach(([name, details]) => {
+      facultyMembers[name] = {
+        building: details.building,
+        room: details.room
+      };
+    });
+
+    console.log('Faculty members data updated successfully.');
+  } catch (error) {
+    console.error('Failed to update faculty members:', error);
+  }
+  console.log(facultyMembers)
+}
+//
+// Call the update function when needed
+updateFacultyMembersData();
+
+console.log(facultyMembers);
 
 export default markers;
