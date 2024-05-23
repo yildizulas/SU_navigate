@@ -38,12 +38,12 @@ const FloorPlanScreenSVG = () => {
     `;
 
     const paths = splitPaths(`
-      <line x1="812.56884765625" y1="662.219970703125" x2="196.28976440429688" y2="662.219970703125" stroke="blue" stroke-width="2" id="path1" data-start="812.56884765625,662.219970703125" data-end="196.28976440429688,662.219970703125" />
-      <line x1="196.28976440429688" y1="662.219970703125" x2="196.28976440429688" y2="769.1967163085938" stroke="blue" stroke-width="2" id="path2" data-start="196.28976440429688,662.219970703125" data-end="196.28976440429688,769.1967163085938" />
-      <line x1="196.28976440429688" y1="769.1967163085938" x2="340.4757995605469" y2="769.1967163085938" stroke="blue" stroke-width="2" id="path3" data-start="196.28976440429688,769.1967163085938" data-end="340.4757995605469,769.1967163085938" />
-      <line x1="340.4757995605469" y1="769.1967163085938" x2="340.4757995605469" y2="662.219970703125" stroke="blue" stroke-width="2" id="path4" data-start="340.4757995605469,769.1967163085938" data-end="340.4757995605469,662.219970703125" />
-      <line x1="673.033935546875" y1="662.219970703125" x2="673.033935546875" y2="776.1734619140625" stroke="blue" stroke-width="2" id="path5" data-start="673.033935546875,662.219970703125" data-end="673.033935546875,776.1734619140625" />
-      <line x1="673.033935546875" y1="776.1734619140625" x2="812.56884765625" y2="776.1734619140625" stroke="blue" stroke-width="2" id="path6" data-start="673.033935546875,776.1734619140625" data-end="812.56884765625,776.1734619140625" />
+      <line x1="812.56884765625" y1="662.219970703125" x2="196.28976440429688" y2="662.219970703125" stroke="orange" stroke-width="2" id="path1" data-start="812.56884765625,662.219970703125" data-end="196.28976440429688,662.219970703125" />
+      <line x1="196.28976440429688" y1="662.219970703125" x2="196.28976440429688" y2="769.1967163085938" stroke="orange" stroke-width="2" id="path2" data-start="196.28976440429688,662.219970703125" data-end="196.28976440429688,769.1967163085938" />
+      <line x1="196.28976440429688" y1="769.1967163085938" x2="340.4757995605469" y2="769.1967163085938" stroke="orange" stroke-width="2" id="path3" data-start="196.28976440429688,769.1967163085938" data-end="340.4757995605469,769.1967163085938" />
+      <line x1="340.4757995605469" y1="769.1967163085938" x2="340.4757995605469" y2="662.219970703125" stroke="orange" stroke-width="2" id="path4" data-start="340.4757995605469,769.1967163085938" data-end="340.4757995605469,662.219970703125" />
+      <line x1="673.033935546875" y1="662.219970703125" x2="673.033935546875" y2="776.1734619140625" stroke="orange" stroke-width="2" id="path5" data-start="673.033935546875,662.219970703125" data-end="673.033935546875,776.1734619140625" />
+      <line x1="673.033935546875" y1="776.1734619140625" x2="812.56884765625" y2="776.1734619140625" stroke="orange" stroke-width="2" id="path6" data-start="673.033935546875,776.1734619140625" data-end="812.56884765625,776.1734619140625" />
       <line x1="812.56884765625" y1="662.219970703125" x2="812.56884765625" y2="841.289794921875" stroke="blue" stroke-width="2" id="path7" data-start="812.56884765625,662.219970703125" data-end="812.56884765625,841.289794921875" />
       <line x1="717.219970703125" y1="662.219970703125" x2="717.219970703125" y2="320.3595275878906" stroke="blue" stroke-width="2" id="path8" data-start="717.219970703125,662.219970703125" data-end="717.219970703125,320.3595275878906" />
       <line x1="819.5455932617188" y1="320.3595275878906" x2="717.219970703125" y2="320.3595275878906" stroke="blue" stroke-width="2" id="path9" data-start="819.5455932617188,320.3595275878906" data-end="717.219970703125,320.3595275878906" />
@@ -84,7 +84,7 @@ const FloorPlanScreenSVG = () => {
           for (let i = 0; i < numberOfSegments; i++) {
             const newY1 = y1 + i * segmentLength * Math.sign(y2 - y1);
             const newY2 = y1 + (i + 1) * segmentLength * Math.sign(y2 - y1);
-            newPaths.push(`<line x1="${x1}" y1="${newY1}" x2="${x1}" y2="${newY2}" stroke="blue" stroke-width="2" id="path${pathCounter}" />`);
+            newPaths.push(`<line x1="${x1}" y1="${newY1}" x2="${x1}" y2="${newY2}" stroke="orange" stroke-width="2" id="path${pathCounter}" />`);
             pathCounter++;
           }
         } else {
@@ -99,7 +99,7 @@ const FloorPlanScreenSVG = () => {
           for (let i = 0; i < numberOfSegments; i++) {
             const newX1 = x1 + i * segmentLength * Math.sign(x2 - x1);
             const newX2 = x1 + (i + 1) * segmentLength * Math.sign(x2 - x1);
-            newPaths.push(`<line x1="${newX1}" y1="${y1}" x2="${newX2}" y2="${y1}" stroke="blue" stroke-width="2" id="path${pathCounter}" />`);
+            newPaths.push(`<line x1="${newX1}" y1="${y1}" x2="${newX2}" y2="${y1}" stroke="orange" stroke-width="2" id="path${pathCounter}" />`);
             pathCounter++;
           }
         } else {
