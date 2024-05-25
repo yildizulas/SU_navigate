@@ -1,6 +1,8 @@
 import axios from 'axios';
+import { Platform } from 'react-native';
 
-const BASE_URL = 'http://10.0.2.2:8000';  // Ensure this is the correct base URL for your FastAPI server
+const BASE_URL = Platform.OS === 'ios' ? 'http://127.0.0.1:8000' : 'http://10.0.2.2:8000';
+
 
 // Fetch all faculty members
 export const fetchFacultyMembers = async () => {
