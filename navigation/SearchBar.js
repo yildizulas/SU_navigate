@@ -28,9 +28,9 @@ const SearchBar = ({ searchQuery, setSearchQuery, onSearch }) => {
 const styles = StyleSheet.create({
   searchBar: {
     position: 'absolute',
-    top: Platform.OS === 'ios' ? 30 : 12,
+    top: Platform.OS === 'ios' ? 25 : 12,
     left: 10,
-    right: 10, // Adjust based on your layout
+    right: Platform.OS === 'ios' ? 65 : 60, // Adjust based on your layout
     height: 40,
     backgroundColor: 'white',
     borderRadius: 20,

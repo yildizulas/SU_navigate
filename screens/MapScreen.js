@@ -226,12 +226,15 @@ const MapScreen = ({ navigation }) => {
     const apiKey = 'AIzaSyBAJ6oNyIj-NLw95eFfGakiVy3mzOjE1_4';
     const mode = 'walking';
     const origin = `${startCoord.latitude},${startCoord.longitude}`;
+    console.log('origin:' ,origin);
     const destination = `${endCoord.latitude},${endCoord.longitude}`;
+    console.log('destination',destination);
     const directionsUrl = `https://maps.googleapis.com/maps/api/directions/json?origin=${origin}&destination=${destination}&mode=${mode}&key=${apiKey}`;
 
     try {
       const response = await fetch(directionsUrl);
       const json = await response.json();
+      console.log(json)
       if (json.routes.length) {
         const points = json.routes[0].overview_polyline.points;
         const steps = decodePolyline(points);
@@ -558,11 +561,11 @@ const styles = StyleSheet.create({
   },
   myLocationButton: {
     position: 'absolute',
-    left: 20,
-    bottom: 20,
+    right: 10,
+    top: 25,
     backgroundColor: 'white',
     padding: 10,
-    borderRadius: 20,
+    borderRadius: 25,
     elevation: 2,
     shadowOpacity: 0.25,
     shadowRadius: 5,
