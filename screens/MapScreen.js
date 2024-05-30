@@ -223,7 +223,7 @@ const MapScreen = ({ navigation }) => {
   };
 
   const fetchRouteData = async (startCoord, endCoord) => {
-    const apiKey = 'AIzaSyBAJ6oNyIj-NLw95eFfGakiVy3mzOjE1_4';
+    const apiKey = 'AIzaSyAD0nGcw674j4c1OO13I5p1XLoC0c9xGec';
     const mode = 'walking';
     const origin = `${startCoord.latitude},${startCoord.longitude}`;
     const destination = `${endCoord.latitude},${endCoord.longitude}`;
@@ -409,7 +409,7 @@ const MapScreen = ({ navigation }) => {
           {routeCoordinates.length > 0 && (
             <Polyline
               coordinates={routeCoordinates}
-              strokeWidth={1}
+              strokeWidth={4}
               strokeColor="red"
             />
           )}

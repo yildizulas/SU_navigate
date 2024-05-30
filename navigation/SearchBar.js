@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: Platform.OS === 'ios' ? 30 : 12,
     left: 10,
-    right: 10, // Adjust based on your layout
+    right: Platform.OS === 'ios' ? 65 : 60, // Adjust based on your layout 
     height: 40,
     backgroundColor: 'white',
     borderRadius: 20,
