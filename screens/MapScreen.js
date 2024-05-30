@@ -28,6 +28,7 @@ const MapScreen = ({ navigation }) => {
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(true);
 
+  /*
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -44,6 +45,20 @@ const MapScreen = ({ navigation }) => {
         longitude: location.coords.longitude,
       });
     })();
+  }, []);
+  */
+  useEffect(() => {
+    // Fake location coordinates
+    const fakeLocation = {
+      latitude: 40.891762386896836,
+      longitude: 29.381541578851632,
+    };
+  
+    setRegion({
+      ...region,
+      latitude: fakeLocation.latitude,
+      longitude: fakeLocation.longitude,
+    });
   }, []);
 
   useEffect(() => {
@@ -125,7 +140,7 @@ const MapScreen = ({ navigation }) => {
     let selectedMarker = null;
     setModalVisible(true);
     setSuggestions([]);
-
+  
     if (facultyMembers[queryKey]) {
       const facultyDetail = facultyMembers[queryKey];
       const buildingMarker = markers[facultyDetail.building]?.[0];
@@ -147,7 +162,7 @@ const MapScreen = ({ navigation }) => {
         };
       }
     }
-
+  
     if (selectedMarker) {
       setSelectedMarker(selectedMarker);
       const newRegion = {
@@ -160,6 +175,11 @@ const MapScreen = ({ navigation }) => {
       setRegion(newRegion);
       mapRef.current.animateToRegion(newRegion, 1000);
       setModalVisible(true);
+  
+      // Log the faculty details to console
+      if (facultyMembers[queryKey]) {
+        console.log(`Selected Faculty Details: Name: ${queryKey}, Building: ${facultyMembers[queryKey].building}, Room: ${facultyMembers[queryKey].room}`);
+      }
     } else {
       console.log('No matching marker found');
     }
@@ -169,34 +189,42 @@ const MapScreen = ({ navigation }) => {
     if (selectedMarker) {
       const currentLocation = await fetchCurrentLocation();
       await fetchRouteData(currentLocation, selectedMarker.coordinate);
-
+  
       if (routeCoordinates.length > 0) {
         const maxLat = Math.max(currentLocation.latitude, selectedMarker.coordinate.latitude);
         const minLat = Math.min(currentLocation.latitude, selectedMarker.coordinate.latitude);
         const maxLng = Math.max(currentLocation.longitude, selectedMarker.coordinate.longitude);
         const minLng = Math.min(currentLocation.longitude, selectedMarker.coordinate.longitude);
-
+  
         const centerLat = (maxLat + minLat) / 2;
         const centerLng = (maxLng + minLng) / 2;
-
+  
         const latitudeDelta = Math.abs(maxLat - minLat) * 1.5;
         const longitudeDelta = Math.abs(maxLng - minLng) * 1.5;
-
+  
         const newRegion = {
           latitude: centerLat,
           longitude: centerLng,
           latitudeDelta,
           longitudeDelta,
         };
-
+  
         mapRef.current.animateToRegion(newRegion, 1000);
       }
-
+  
       setModalVisible(false);
+  
+      const facultyMember = facultyMembers[selectedMarker.title];
+      if (facultyMember && facultyMember.room) {
+        navigation.navigate('FloorPlanSVG', { roomNumber: facultyMember.room });
+      } else {
+        console.log('Room number not available for selected marker');
+      }
     } else {
       console.log('No marker selected');
     }
   };
+  
 
   const getDistance = (location1, location2) => {
     const toRadians = (deg) => deg * Math.PI / 180;
@@ -255,12 +283,23 @@ const MapScreen = ({ navigation }) => {
     });
   };
 
+  /*
   const fetchCurrentLocation = async () => {
     let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
     return {
       latitude: location.coords.latitude,
       longitude: location.coords.longitude,
     };
+  };
+  */
+  const fetchCurrentLocation = async () => {
+    // Fake location coordinates
+    const fakeLocation = {
+      latitude: 40.891762386896836,
+      longitude: 29.381541578851632,
+    };
+  
+    return fakeLocation;
   };
 
   const MAX_DISTANCE = 150;
