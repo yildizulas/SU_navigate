@@ -28,7 +28,7 @@ const MapScreen = ({ navigation }) => {
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(true);
 
-  /*
+  
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -46,7 +46,7 @@ const MapScreen = ({ navigation }) => {
       });
     })();
   }, []);
-  */
+  
   useEffect(() => {
     // Fake location coordinates
     const fakeLocation = {
