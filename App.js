@@ -14,6 +14,8 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import colors from './styles/colors';
 
+
+
 const Stack = createNativeStackNavigator();
 
 const App = () => {
